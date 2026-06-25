@@ -12,6 +12,7 @@
   "knowledgeBases": [ { "name": "kb", "path": "kb", "default": true } ],
   "requirements": [
     { "name": "go toolchain",   "exe": "go", "hint": "install Go (https://go.dev/dl) and put it on PATH" },
+    { "name": "go toolbelt",    "tool": "doctor_go", "hint": "/do doctor_go for the full toolbelt report" },
     { "name": "model generate", "model": "qwen3-coder:latest", "hint": "ollama pull qwen3-coder" },
     { "name": "model embed",    "model": "nomic-embed-text", "hint": "ollama pull nomic-embed-text" },
     { "name": "KB kb",          "kb": "kb" }

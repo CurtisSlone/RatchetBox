@@ -12,6 +12,25 @@
       },
       "stdin": "code",
       "timeout": 90
+    },
+    {
+      "name": "go_test",
+      "description": "BEHAVIOR oracle: type-check, `go vet`, and `go test` a Go package. The payload (on stdin) carries two files introduced by markers: `// === solution.go ===` (the implementation, `package solution`) and `// === solution_test.go ===` (the tests). Exit 0 iff vet is clean and the tests pass. Requires a *_test.go file (a package with no tests is a silent false pass).",
+      "script": "tools/go_test.sh",
+      "inputSchema": {
+        "type": "object",
+        "properties": { "code": { "type": "string", "description": "two marker-separated Go files: solution.go and solution_test.go" } },
+        "required": ["code"]
+      },
+      "stdin": "code",
+      "timeout": 120
+    },
+    {
+      "name": "doctor_go",
+      "description": "Toolbelt probe for `ratchet doctor` (analog of cpp's doctor_cl): reports the Go toolbelt and its optional linters. Exit 0 if the required `go` toolchain (build/vet/test) is present, 1 if not. Optional linters are reported as info, never block. Run directly with `/do doctor_go`.",
+      "script": "tools/doctor_go.sh",
+      "inputSchema": { "type": "object", "properties": {} },
+      "timeout": 30
     }
   ]
 }

@@ -1,0 +1,13 @@
+{
+  "$comment": "The repair: regenerate both files given the vet/test diagnostics + the previous attempt. Bounded - one fix, then recheck.",
+  "id": "test.fix",
+  "kind": "generate",
+  "prompt": "./prompt.md",
+  "inputs": [
+    { "from": "$input", "path": ".", "as": "task" },
+    { "from": "test.generate", "path": ".", "as": "prev", "max_chars": 5000 },
+    { "from": "test.check", "path": ".", "as": "errors", "max_chars": 2500 }
+  ],
+  "on_success": "test.recheck",
+  "on_failure": "test.fail"
+}

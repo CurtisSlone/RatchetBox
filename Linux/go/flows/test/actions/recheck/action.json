@@ -1,0 +1,10 @@
+{
+  "$comment": "Re-run the behavior oracle on the repaired pair. Pass -> done; still failing -> fail (bounded: one repair only).",
+  "id": "test.recheck",
+  "kind": "action",
+  "tool": "go_test",
+  "inputs": [ { "from": "test.fix", "path": ".", "as": "code" } ],
+  "body": { "code": "{{ code }}" },
+  "on_success": "test.done",
+  "on_failure": "test.fail"
+}

@@ -1,0 +1,12 @@
+{
+  "$comment": "Generate the implementation AND its test, grounded in the kb. Output is two marker-separated files the go_test oracle splits and runs.",
+  "id": "test.generate",
+  "kind": "generate",
+  "prompt": "./prompt.md",
+  "inputs": [
+    { "from": "$input", "path": ".", "as": "task" },
+    { "search": "kb", "query": "{{ task }}", "k": 2, "as": "refs", "max_chars": 2000 }
+  ],
+  "on_success": "test.check",
+  "on_failure": "test.fail"
+}

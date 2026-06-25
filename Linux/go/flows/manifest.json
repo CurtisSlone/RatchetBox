@@ -1,0 +1,17 @@
+{
+  "$comment": "Quick-reference index of this ratchet's flows (id + summary + entry + node count). The engine discovers flows by scanning each flow folder's chain.json; this file is for fast human/agent reference. Update it when adding or changing a flow.",
+  "flows": [
+    {
+      "id": "go",
+      "summary": "Generate Go code for a focused task, verify it with `go build` (type-check, library package), and repair once if it does not build.",
+      "entry": "go.generate",
+      "nodes": 6
+    },
+    {
+      "id": "test",
+      "summary": "Generate a Go implementation plus a test for a task, verify it with `go vet` + `go test` (behavior, not just compile), and repair once if it fails.",
+      "entry": "test.generate",
+      "nodes": 6
+    }
+  ]
+}

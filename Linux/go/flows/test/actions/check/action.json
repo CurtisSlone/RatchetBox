@@ -1,0 +1,10 @@
+{
+  "$comment": "The behavior oracle: go_test reads the two marker-separated files on stdin (the tool declares stdin:code), runs go vet + go test, and exits 0 iff vet is clean and tests pass. Pass -> done; fail -> the one repair attempt.",
+  "id": "test.check",
+  "kind": "action",
+  "tool": "go_test",
+  "inputs": [ { "from": "test.generate", "path": ".", "as": "code" } ],
+  "body": { "code": "{{ code }}" },
+  "on_success": "test.done",
+  "on_failure": "test.fix"
+}

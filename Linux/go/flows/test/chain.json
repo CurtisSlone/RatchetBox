@@ -1,0 +1,9 @@
+{
+  "$comment": "test: generate a Go implementation AND a test for a task, then verify BEHAVIOR with go vet + go test (the go_test oracle), repairing ONCE if vet/tests fail. generate -> check -> done | fix -> recheck -> done | fail. Bounded, unrolled repair (no cycle) so it lints clean and terminates. The chain is named `test` (not `go_test`) because the flat namespace forbids a chain and a tool sharing a name; the oracle tool is `go_test`.",
+  "id": "test",
+  "version": "1.0.0",
+  "summary": "Generate a Go implementation plus a test for a task, verify it with `go vet` + `go test` (behavior, not just compile), and repair once if it fails.",
+  "entry": "test.generate",
+  "budgets": { "max_steps": 10, "max_total_tokens": 16000, "max_wallclock_seconds": 900 },
+  "nodes": ["test.generate", "test.check", "test.fix", "test.recheck", "test.done", "test.fail"]
+}
