@@ -1,0 +1,9 @@
+{
+  "id": "go.rebuild",
+  "kind": "action",
+  "tool": "go_build",
+  "inputs": [ { "from": "go.fix", "path": ".", "as": "code" } ],
+  "body": { "code": "{{ code }}" },
+  "on_success": "go.done",
+  "on_failure": "go.fail"
+}

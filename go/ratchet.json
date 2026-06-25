@@ -1,0 +1,20 @@
+{
+  "$comment": "The Go reference ratchet: cross-platform code generation verified by `go build`. All dirs default under this workdir. The oracle tool (go_build) is a .sh script the engine dispatches to bash on unix/WSL/macOS; add a .ps1 sibling to also run native on Windows. Launch with `ratchet <this-dir>`; one-shot with `ratchet flow <this-dir> go \"...\"`.",
+  "name": "go",
+  "domain": "Cross-platform Go code generation, verified with `go build`",
+  "models": {
+    "generate": "qwen3-coder:latest",
+    "dispatch": "phi3:mini",
+    "embed": "nomic-embed-text"
+  },
+  "ollama_url": "http://localhost:11434",
+  "router": { "autorun": "confirm" },
+  "knowledgeBases": [ { "name": "kb", "path": "kb", "default": true } ],
+  "requirements": [
+    { "name": "go toolchain",   "exe": "go", "hint": "install Go (https://go.dev/dl) and put it on PATH" },
+    { "name": "model generate", "model": "qwen3-coder:latest", "hint": "ollama pull qwen3-coder" },
+    { "name": "model embed",    "model": "nomic-embed-text", "hint": "ollama pull nomic-embed-text" },
+    { "name": "KB kb",          "kb": "kb" }
+  ]
+}
+ 

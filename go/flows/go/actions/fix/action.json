@@ -1,0 +1,13 @@
+{
+  "$comment": "The repair: regenerate the Go given the build errors + the previous attempt. Bounded - one fix, then rebuild.",
+  "id": "go.fix",
+  "kind": "generate",
+  "prompt": "./prompt.md",
+  "inputs": [
+    { "from": "$input", "path": ".", "as": "task" },
+    { "from": "go.generate", "path": ".", "as": "prev", "max_chars": 4000 },
+    { "from": "go.build", "path": ".", "as": "errors", "max_chars": 2000 }
+  ],
+  "on_success": "go.rebuild",
+  "on_failure": "go.fail"
+}

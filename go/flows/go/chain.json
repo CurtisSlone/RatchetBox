@@ -1,0 +1,9 @@
+{
+  "$comment": "go: generate a complete Go source file for a task, type-check it (go_build, the oracle), and repair ONCE if it fails. generate -> build -> done | fix -> rebuild -> done | fail. Bounded, unrolled repair (no cycle) so it lints clean and terminates.",
+  "id": "go",
+  "version": "1.0.0",
+  "summary": "Generate Go code for a focused task, verify it with `go build`, and repair once if it does not build.",
+  "entry": "go.generate",
+  "budgets": { "max_steps": 10, "max_total_tokens": 12000, "max_wallclock_seconds": 600 },
+  "nodes": ["go.generate", "go.build", "go.fix", "go.rebuild", "go.done", "go.fail"]
+}
