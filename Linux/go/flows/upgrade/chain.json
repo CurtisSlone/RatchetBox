@@ -1,0 +1,9 @@
+{
+  "$comment": "upgrade: verified version bump for a workspace. A thin wrapper over the bump tool (deterministic) so it is --ws friendly. Snapshots go.mod, applies the change, tidies, runs the full go_quality gate, and keeps the change only if it stays clean (else rolls back). Run: `ratchet flow . upgrade --ws <proj> \"<pkg>@<ver> | go=<ver> | -u | tidy\"`.",
+  "id": "upgrade",
+  "version": "1.0.0",
+  "summary": "Change a dependency/toolchain version in a workspace, verified with the full quality gate and rolled back if it breaks.",
+  "entry": "upgrade.exec",
+  "budgets": { "max_steps": 4, "max_total_tokens": 1000, "max_wallclock_seconds": 300 },
+  "nodes": ["upgrade.exec", "upgrade.done", "upgrade.fail"]
+}

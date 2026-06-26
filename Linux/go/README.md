@@ -35,12 +35,31 @@ query skips it, so generation is grounded only on what the task needs - a heap t
   Verifies *behavior*, not just compilation - the headline of this ratchet. Emits two marker-separated
   files (`// === solution.go ===` / `// === solution_test.go ===`) the oracle splits and runs.
 
+**Versions** (verified bumps, with rollback):
+- **`upgrade`** - `ratchet flow . upgrade --ws <proj> "<pkg>@<ver> | go=<ver> | -u | tidy"` (or
+  `/do bump <proj> <change>`): a version change is a change, so the oracle gates it - it snapshots
+  go.mod/go.sum, applies the bump, `go mod tidy`s, runs the full `go_quality` gate (incl. `govulncheck`
+  on the new version), and keeps it only if still clean, else rolls back.
+
+**Frameworks** (any third-party module, grounded):
+- `/do add_dep <proj> <module>` ingests a module's `go doc` into the `deps` KB, so generation writes
+  correct API against it (proven with `github.com/go-chi/chi/v5` - the model used the real chi router
+  API and the service built + passed `harden`). The `recipes` KB carries profiles for common ones (chi
+  web service, cobra CLI) plus app-type playbooks (JSON API, worker pool, flag CLI), pulled by `spec`
+  and `add_unit`.
+
 **Spec authoring** (the front-end to compose):
 - **`spec`** - `ratchet flow . spec --ws <proj> "<description>"` (after `new_module <proj>`): drafts
   well-formed `.spec` file(s) from a free-text description - one unit or a whole system (decomposed).
   Validated by the `spec_check` oracle and written into `workspaces/<proj>/specs/`. Grounded on
   patterns/pitfalls so the specs name the right concerns (e.g. it adds `atomic.Int64`, `http.Server`
   timeouts) before any code exists. Review the specs, then `compose`.
+
+**Existing repos + refactor** (drive code you already have):
+- `/do link_repo <name> <path>` symlinks any external Go module in as `workspaces/<name>`, so every flow
+  below operates on your real repo (the oracles guard each change). **`refactor`** -
+  `ratchet flow . refactor --ws <proj> "rename X to Y"` - type-safe rename across files via `gorename`,
+  build-verified.
 
 **Project lifecycle** (a persistent module under `workspaces/<proj>` you keep and grow):
 - `/do new_module <proj>` - scaffold `workspaces/<proj>` (go.mod, PROJECT.md, specs/). All units live
@@ -55,6 +74,17 @@ query skips it, so generation is grounded only on what the task needs - a heap t
 - **`compose`** - `ratchet flow . compose --ws <proj> ""`: read `.spec` files in
   `workspaces/<proj>/specs`, plan the build order, generate each unit in dependency order against the
   module so far (`add_unit` per unit), then `go build ./...` + `go test ./...` the whole thing.
+
+**Harden** (the production gate; deterministic, no model):
+- **`harden`** - `ratchet flow . harden --ws <proj> ""` (or `/do go_quality <proj>`): run the full
+  quality/security suite over a workspace - gofmt, `go vet`, `go build`, **`go test -race`**,
+  `staticcheck`, **`govulncheck`** (known CVEs), `gosec` (SAST) - and pass only if every installed tool
+  is clean. (The per-unit oracles already run `-race` and surface `staticcheck`; `harden` gates the lot.)
+
+**Self-improvement** (the KB learns from the oracle):
+- `/do mine_runs` scans `runs/` for recurring oracle failures and flags which are not yet covered by
+  `pitfalls/`; **`learn`** (`ratchet flow . learn "<class>"`) drafts the missing pitfalls entry and adds
+  it. The ratchet teaches itself from its own compiler - the more you run it, the lower the repair rate.
 
 **Reference / learning** (grounded Q&A, no code generation, no oracle):
 - **`explain`** - `ratchet flow . explain "<question>"` (or `/route "explain ..."`): answers a Go

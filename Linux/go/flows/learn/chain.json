@@ -1,0 +1,9 @@
+{
+  "$comment": "learn: draft a kb/pitfalls entry for a recurring error class (surfaced by `mine_runs`) and add it to the KB - the generative half of the self-improvement loop. generate -> write -> done | fix -> rewrite -> done | fail. The oracle (write_pitfall) is structural well-formedness (an H1 title + a ```go example). Grounded on the existing pitfalls (house style) + stdlib. Run: `ratchet flow . learn \"<error class / trap>\"`.",
+  "id": "learn",
+  "version": "1.0.0",
+  "summary": "Draft a kb/pitfalls entry for a recurring Go failure class (from mine_runs) and add it to the knowledge base - the self-improvement loop.",
+  "entry": "learn.generate",
+  "budgets": { "max_steps": 8, "max_total_tokens": 14000, "max_wallclock_seconds": 500 },
+  "nodes": ["learn.generate", "learn.write", "learn.fix", "learn.rewrite", "learn.done", "learn.fail"]
+}

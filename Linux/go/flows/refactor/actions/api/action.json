@@ -1,0 +1,9 @@
+{
+  "id": "refactor.api",
+  "kind": "action",
+  "tool": "module_api",
+  "inputs": [ { "from": "$workspace", "path": ".", "as": "proj" } ],
+  "body": { "proj": "{{ proj }}" },
+  "on_success": "refactor.plan",
+  "on_failure": "refactor.fail"
+}

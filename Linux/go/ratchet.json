@@ -8,26 +8,88 @@
     "embed": "nomic-embed-text"
   },
   "ollama_url": "http://localhost:11434",
-  "router": { "autorun": "confirm" },
+  "router": {
+    "autorun": "confirm"
+  },
   "knowledgeBases": [
-    { "name": "kb",       "path": "kb/idioms", "default": true },
-    { "name": "stdlib",   "path": "kb/stdlib" },
-    { "name": "patterns",   "path": "kb/patterns" },
-    { "name": "deps",       "path": "kb/deps" },
-    { "name": "guidelines", "path": "kb/guidelines" },
-    { "name": "pitfalls",   "path": "kb/pitfalls" }
+    {
+      "name": "kb",
+      "path": "kb/idioms",
+      "default": true
+    },
+    {
+      "name": "stdlib",
+      "path": "kb/stdlib"
+    },
+    {
+      "name": "patterns",
+      "path": "kb/patterns"
+    },
+    {
+      "name": "deps",
+      "path": "kb/deps"
+    },
+    {
+      "name": "guidelines",
+      "path": "kb/guidelines"
+    },
+    {
+      "name": "pitfalls",
+      "path": "kb/pitfalls"
+    },
+    {
+      "name": "recipes",
+      "path": "kb/recipes"
+    }
   ],
   "requirements": [
-    { "name": "go toolchain",   "exe": "go", "hint": "install Go (https://go.dev/dl) and put it on PATH" },
-    { "name": "go toolbelt",    "tool": "doctor_go", "hint": "/do doctor_go for the full toolbelt report" },
-    { "name": "model generate", "model": "qwen3-coder:latest", "hint": "ollama pull qwen3-coder" },
-    { "name": "model embed",    "model": "nomic-embed-text", "hint": "ollama pull nomic-embed-text" },
-    { "name": "KB kb",          "kb": "kb" },
-    { "name": "KB stdlib",      "kb": "stdlib" },
-    { "name": "KB patterns",    "kb": "patterns" },
-    { "name": "KB deps",        "kb": "deps" },
-    { "name": "KB guidelines",  "kb": "guidelines" },
-    { "name": "KB pitfalls",    "kb": "pitfalls" }
+    {
+      "name": "go toolchain",
+      "exe": "go",
+      "hint": "install Go (https://go.dev/dl) and put it on PATH"
+    },
+    {
+      "name": "go toolbelt",
+      "tool": "doctor_go",
+      "hint": "/do doctor_go for the full toolbelt report"
+    },
+    {
+      "name": "model generate",
+      "model": "qwen3-coder:latest",
+      "hint": "ollama pull qwen3-coder"
+    },
+    {
+      "name": "model embed",
+      "model": "nomic-embed-text",
+      "hint": "ollama pull nomic-embed-text"
+    },
+    {
+      "name": "KB kb",
+      "kb": "kb"
+    },
+    {
+      "name": "KB stdlib",
+      "kb": "stdlib"
+    },
+    {
+      "name": "KB patterns",
+      "kb": "patterns"
+    },
+    {
+      "name": "KB deps",
+      "kb": "deps"
+    },
+    {
+      "name": "KB guidelines",
+      "kb": "guidelines"
+    },
+    {
+      "name": "KB pitfalls",
+      "kb": "pitfalls"
+    },
+    {
+      "name": "KB recipes",
+      "kb": "recipes"
+    }
   ]
 }
- 

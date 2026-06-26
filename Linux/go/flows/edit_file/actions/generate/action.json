@@ -9,6 +9,7 @@
     { "from": "edit_file.read", "path": ".", "as": "current", "max_chars": 8000 },
     { "from": "edit_file.readproj", "path": ".", "as": "project", "max_chars": 4000 },
     { "search": "stdlib", "query": "{{ request }}", "k": 1, "as": "stdlib_refs", "max_chars": 2500 },
+    { "search": "pitfalls", "query": "{{ request }}", "k": 1, "as": "pitfall_refs", "max_chars": 2000 },
     { "search": "deps", "query": "{{ request }}", "k": 1, "as": "dep_refs", "max_chars": 2500 }
   ],
   "on_success": "edit_file.check",

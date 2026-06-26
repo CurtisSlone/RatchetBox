@@ -1,0 +1,14 @@
+{
+  "$comment": "Regenerate ALL the files for the cross-cutting change. Output is the same marker format read_files produced, which stage_files writes + verifies atomically.",
+  "id": "coedit.generate",
+  "kind": "generate",
+  "prompt": "./prompt.md",
+  "inputs": [
+    { "from": "request", "path": ".", "as": "request" },
+    { "from": "coedit.read", "path": ".", "as": "current", "max_chars": 12000 },
+    { "search": "stdlib", "query": "{{ request }}", "k": 1, "as": "stdlib_refs", "max_chars": 2000 },
+    { "search": "pitfalls", "query": "{{ request }}", "k": 1, "as": "pitfall_refs", "max_chars": 1500 }
+  ],
+  "on_success": "coedit.apply",
+  "on_failure": "coedit.fail"
+}

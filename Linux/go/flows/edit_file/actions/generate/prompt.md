@@ -24,3 +24,5 @@ Rules:
 {{ stdlib_refs }}
 ### Third-party module (already in this workspace's go.mod)
 {{ dep_refs }}
+### Pitfalls to avoid (builds-but-wrong / redeclaration)
+{{ pitfall_refs }}

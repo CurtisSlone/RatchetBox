@@ -1,0 +1,13 @@
+{
+  "$comment": "Draft the pitfalls entry, grounded on existing pitfalls (house style) + stdlib. Output is the markdown doc the write_pitfall oracle validates + writes.",
+  "id": "learn.generate",
+  "kind": "generate",
+  "prompt": "./prompt.md",
+  "inputs": [
+    { "from": "$input", "path": ".", "as": "klass" },
+    { "search": "pitfalls", "query": "{{ klass }}", "k": 2, "as": "style_refs", "max_chars": 2500 },
+    { "search": "stdlib", "query": "{{ klass }}", "k": 1, "as": "stdlib_refs", "max_chars": 1500 }
+  ],
+  "on_success": "learn.write",
+  "on_failure": "learn.fail"
+}

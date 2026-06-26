@@ -1,0 +1,12 @@
+{
+  "id": "upgrade.exec",
+  "kind": "action",
+  "tool": "bump",
+  "inputs": [
+    { "from": "$workspace", "path": ".", "as": "proj" },
+    { "from": "$input", "path": ".", "as": "change" }
+  ],
+  "body": { "proj": "{{ proj }}", "change": "{{ change }}" },
+  "on_success": "upgrade.done",
+  "on_failure": "upgrade.fail"
+}

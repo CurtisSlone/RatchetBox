@@ -1,0 +1,10 @@
+{
+  "$comment": "Run the full quality/security suite over the active workspace. Clean -> done; any gate fails -> fail (the findings are in the output).",
+  "id": "harden.check",
+  "kind": "action",
+  "tool": "go_quality",
+  "inputs": [ { "from": "$workspace", "path": ".", "as": "proj" } ],
+  "body": { "proj": "{{ proj }}" },
+  "on_success": "harden.done",
+  "on_failure": "harden.fail"
+}

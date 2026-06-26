@@ -67,6 +67,22 @@
       ]
     },
     {
+      "id": "redeclared-top-level-name",
+      "title": "Pitfall: redeclared top-level name",
+      "path": "redeclared-top-level-name.md",
+      "summary": "Go REJECTS redeclaration of any top-level name (like `func main`) when adding a new file to an existing package — this causes a compile error at build time because all top-level declarations must be",
+      "keywords": [
+        "main",
+        "package",
+        "func",
+        "level",
+        "println",
+        "across",
+        "adding",
+        "already"
+      ]
+    },
+    {
       "id": "slice-aliasing-append",
       "title": "Pitfall: slice aliasing and append surprises",
       "path": "slice-aliasing-append.md",
@@ -80,6 +96,22 @@
         "copy",
         "shares",
         "storage"
+      ]
+    },
+    {
+      "id": "top-level-statements",
+      "title": "Pitfall: top-level statements",
+      "path": "top-level-statements.md",
+      "summary": "Go REJECTS non-declaration statements at package scope - `go build` fails with a syntax error because only declarations (var, const, type, func) are allowed at package level; statements like assignmen",
+      "keywords": [
+        "package",
+        "function",
+        "level",
+        "allowed",
+        "declarations",
+        "func",
+        "inside",
+        "main"
       ]
     },
     {

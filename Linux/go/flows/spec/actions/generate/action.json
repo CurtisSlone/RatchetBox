@@ -5,7 +5,8 @@
   "prompt": "./prompt.md",
   "inputs": [
     { "from": "$input", "path": ".", "as": "desc" },
-    { "search": "patterns", "query": "{{ desc }}", "k": 2, "as": "pattern_refs", "max_chars": 3000 },
+    { "search": "recipes", "query": "{{ desc }}", "k": 2, "as": "recipe_refs", "max_chars": 3500 },
+    { "search": "patterns", "query": "{{ desc }}", "k": 1, "as": "pattern_refs", "max_chars": 2500 },
     { "search": "guidelines", "query": "{{ desc }}", "k": 1, "as": "guideline_refs", "max_chars": 2000 },
     { "search": "pitfalls", "query": "{{ desc }}", "k": 1, "as": "pitfall_refs", "max_chars": 2000 }
   ],

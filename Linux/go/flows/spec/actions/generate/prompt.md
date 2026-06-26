@@ -31,6 +31,8 @@ Rules:
 {{ desc }}
 
 ## Reference (use it to name the right concerns; any section may be empty)
+### Recipes (playbooks for this kind of app - mirror their unit breakdown and the APIs/deps they name)
+{{ recipe_refs }}
 ### Patterns
 {{ pattern_refs }}
 ### Idiomatic style

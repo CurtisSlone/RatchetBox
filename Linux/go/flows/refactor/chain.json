@@ -1,0 +1,9 @@
+{
+  "$comment": "refactor: a type-safe rename across a workspace module. The model reads the module API, turns a free-text request ('rename X to Y') into the exact target + new name, and gorename renames every reference across files (then verifies the build). api -> plan -> apply -> done | fail. No code generation - gorename does the edit deterministically. Run: `ratchet flow . refactor --ws <proj> \"rename Balance to BalanceOf\"`.",
+  "id": "refactor",
+  "version": "1.0.0",
+  "summary": "Type-safe rename across a module: the model maps a request to a target, gorename renames every reference and verifies the build.",
+  "entry": "refactor.api",
+  "budgets": { "max_steps": 6, "max_total_tokens": 8000, "max_wallclock_seconds": 300 },
+  "nodes": ["refactor.api", "refactor.plan", "refactor.apply", "refactor.done", "refactor.fail"]
+}

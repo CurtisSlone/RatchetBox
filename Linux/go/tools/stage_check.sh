@@ -17,12 +17,20 @@ mkdir -p "$(dirname "$root/$path")"
 printf '%s\n' "$code" > "$root/$path"
 gofmt -w "$root/$path" 2>/dev/null
 
+RACE=""
+if [ "$(go env CGO_ENABLED 2>/dev/null)" != "0" ] && { command -v gcc >/dev/null 2>&1 || command -v clang >/dev/null 2>&1 || command -v cc >/dev/null 2>&1; }; then RACE="-race"; fi
+
 v="$(cd "$root" && GOFLAGS=-mod=mod go vet ./... 2>&1)"; vs=$?
 if [ "$vs" -ne 0 ]; then echo "VET FAILED after staging $path:"; printf '%s\n' "$v"; exit 1; fi
 
-t="$(cd "$root" && GOFLAGS=-mod=mod go test ./... 2>&1)"; ts=$?
-if [ "$ts" -ne 0 ]; then echo "TEST FAILED after staging $path:"; printf '%s\n' "$t"; exit 1; fi
+t="$(cd "$root" && GOFLAGS=-mod=mod go test $RACE ./... 2>&1)"; ts=$?
+if [ "$ts" -ne 0 ]; then echo "TEST FAILED${RACE:+ (-race)} after staging $path:"; printf '%s\n' "$t"; exit 1; fi
 
-echo "OK: staged $path; module vets and tests pass"
+echo "OK: staged $path; module vets and tests pass${RACE:+ (-race)}"
 printf '%s\n' "$t"
+# staticcheck is ADVISORY here (visibility, not a gate) - the harden flow gates on it. Only if installed.
+if command -v staticcheck >/dev/null 2>&1; then
+  sc="$(cd "$root" && staticcheck ./... 2>&1)"
+  [ -n "$sc" ] && { echo "STATICCHECK (advisory):"; printf '%s\n' "$sc"; }
+fi
 exit 0

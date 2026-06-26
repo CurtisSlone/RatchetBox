@@ -1,0 +1,12 @@
+{
+  "id": "coedit.reapply",
+  "kind": "action",
+  "tool": "stage_files",
+  "inputs": [
+    { "from": "$workspace", "path": ".", "as": "proj" },
+    { "from": "coedit.fix", "path": ".", "as": "code" }
+  ],
+  "body": { "proj": "{{ proj }}", "code": "{{ code }}" },
+  "on_success": "coedit.done",
+  "on_failure": "coedit.fail"
+}

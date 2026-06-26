@@ -42,10 +42,18 @@ if command -v go >/dev/null 2>&1; then
   probe_sub "test"
   probe_sub "build"
 fi
-echo "Optional linters (gate flows, never block):"
-probe_optional "goimports"     "goimports"     "go install golang.org/x/tools/cmd/goimports@latest"
+echo "Optional quality/security tools (advisory in oracles; gated by the harden flow when present):"
 probe_optional "staticcheck"   "staticcheck"   "go install honnef.co/go/tools/cmd/staticcheck@latest"
+probe_optional "govulncheck"   "govulncheck"   "go install golang.org/x/vuln/cmd/govulncheck@latest"
+probe_optional "gosec"         "gosec"         "go install github.com/securego/gosec/v2/cmd/gosec@latest"
+probe_optional "goimports"     "goimports"     "go install golang.org/x/tools/cmd/goimports@latest"
 probe_optional "golangci-lint" "golangci-lint" "https://golangci-lint.run install"
+# Race detector: needs CGO + a C compiler. Report whether `go test -race` is usable here.
+if [ "$(go env CGO_ENABLED 2>/dev/null)" != "0" ] && { command -v gcc >/dev/null 2>&1 || command -v clang >/dev/null 2>&1 || command -v cc >/dev/null 2>&1; }; then
+  printf '  [ok]   %-14s (race) `go test -race` available\n' "race detector"
+else
+  printf '  [--]   %-14s (race) needs CGO_ENABLED=1 + a C compiler; tests run without -race\n' "race detector"
+fi
 
 if [ "$ok" -eq 0 ]; then
   echo "OK: required Go toolchain present (build/vet/test oracle ready)."

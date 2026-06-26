@@ -1,0 +1,1 @@
+{ "id": "refactor.fail", "kind": "exit", "outcome": "aborted: rename target not found/ambiguous or the build broke" }

@@ -1,0 +1,12 @@
+{
+  "id": "coedit.read",
+  "kind": "action",
+  "tool": "read_files",
+  "inputs": [
+    { "from": "$workspace", "path": ".", "as": "proj" },
+    { "from": "files", "path": ".", "as": "files" }
+  ],
+  "body": { "proj": "{{ proj }}", "files": "{{ files }}" },
+  "on_success": "coedit.generate",
+  "on_failure": "coedit.fail"
+}

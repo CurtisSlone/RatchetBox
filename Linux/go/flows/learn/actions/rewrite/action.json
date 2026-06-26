@@ -1,0 +1,9 @@
+{
+  "id": "learn.rewrite",
+  "kind": "action",
+  "tool": "write_pitfall",
+  "inputs": [ { "from": "learn.fix", "path": ".", "as": "code" } ],
+  "body": { "code": "{{ code }}" },
+  "on_success": "learn.done",
+  "on_failure": "learn.fail"
+}

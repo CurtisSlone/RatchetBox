@@ -1,0 +1,1 @@
+{ "id": "coedit.fail", "kind": "exit", "outcome": "aborted: multi-file edit did not verify after one repair (rolled back)" }

@@ -1,0 +1,10 @@
+{
+  "$comment": "Validate (structural) + write the drafted entry to kb/pitfalls and reindex. Malformed -> one repair.",
+  "id": "learn.write",
+  "kind": "action",
+  "tool": "write_pitfall",
+  "inputs": [ { "from": "learn.generate", "path": ".", "as": "code" } ],
+  "body": { "code": "{{ code }}" },
+  "on_success": "learn.done",
+  "on_failure": "learn.fix"
+}

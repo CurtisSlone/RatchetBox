@@ -27,3 +27,5 @@ Rules:
 {{ dep_refs }}
 ### Design pattern
 {{ pattern_refs }}
+### Pitfalls to avoid (builds-but-wrong / redeclaration)
+{{ pitfall_refs }}

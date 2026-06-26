@@ -24,6 +24,6 @@ while IFS= read -r f; do
   fi
   printf '## %s  [%s]\n%s\n\n' "$rel" "$note" "$sigs"
   n=$((n + 1))
-done < <(find "$root" -name '*.go' -not -name '*_test.go' | sort)
+done < <(find -L "$root" -name '*.go' -not -name '*_test.go' | sort)
 [ "$n" -eq 0 ] && echo "(no Go units yet - this is the first unit)"
 exit 0

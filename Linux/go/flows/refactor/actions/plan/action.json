@@ -1,0 +1,20 @@
+{
+  "$comment": "Map the request to the exact existing target (a package-level name or Type.Method, as it appears in the API) and the new name.",
+  "id": "refactor.plan",
+  "kind": "generate",
+  "prompt": "./prompt.md",
+  "inputs": [
+    { "from": "$input", "path": ".", "as": "request" },
+    { "from": "refactor.api", "path": ".", "as": "api" }
+  ],
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "target": { "type": "string", "description": "the existing name to rename: a package-level name (e.g. Transfer) or Type.Method (e.g. Ledger.Balance), exactly as in the API" },
+      "newname": { "type": "string", "description": "the new identifier" }
+    },
+    "required": ["target", "newname"]
+  },
+  "on_success": "refactor.apply",
+  "on_failure": "refactor.fail"
+}

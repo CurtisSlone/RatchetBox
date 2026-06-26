@@ -1,0 +1,13 @@
+{
+  "$comment": "Transactional: write all files + verify the whole module (go vet + go test -race); rollback all on failure -> one repair.",
+  "id": "coedit.apply",
+  "kind": "action",
+  "tool": "stage_files",
+  "inputs": [
+    { "from": "$workspace", "path": ".", "as": "proj" },
+    { "from": "coedit.generate", "path": ".", "as": "code" }
+  ],
+  "body": { "proj": "{{ proj }}", "code": "{{ code }}" },
+  "on_success": "coedit.done",
+  "on_failure": "coedit.fix"
+}

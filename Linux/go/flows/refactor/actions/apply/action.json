@@ -1,0 +1,14 @@
+{
+  "$comment": "gorename renames every reference across files and verifies the build. Failure (ambiguous target, build break) -> fail.",
+  "id": "refactor.apply",
+  "kind": "action",
+  "tool": "gorename",
+  "inputs": [
+    { "from": "$workspace", "path": ".", "as": "proj" },
+    { "from": "refactor.plan", "path": "target", "as": "target" },
+    { "from": "refactor.plan", "path": "newname", "as": "newname" }
+  ],
+  "body": { "proj": "{{ proj }}", "target": "{{ target }}", "newname": "{{ newname }}" },
+  "on_success": "refactor.done",
+  "on_failure": "refactor.fail"
+}

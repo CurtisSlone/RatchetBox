@@ -1,0 +1,12 @@
+{
+  "id": "learn.fix",
+  "kind": "generate",
+  "prompt": "./prompt.md",
+  "inputs": [
+    { "from": "$input", "path": ".", "as": "klass" },
+    { "from": "learn.generate", "path": ".", "as": "prev", "max_chars": 4000 },
+    { "from": "learn.write", "path": ".", "as": "errors", "max_chars": 1000 }
+  ],
+  "on_success": "learn.rewrite",
+  "on_failure": "learn.fail"
+}

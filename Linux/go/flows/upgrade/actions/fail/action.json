@@ -1,0 +1,1 @@
+{ "id": "upgrade.fail", "kind": "exit", "outcome": "aborted: version change failed to apply or did not pass the quality gate (rolled back)" }

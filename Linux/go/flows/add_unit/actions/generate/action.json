@@ -12,6 +12,7 @@
     { "search": "patterns", "query": "{{ spec }}", "k": 1, "as": "pattern_refs", "max_chars": 2500 },
     { "search": "pitfalls", "query": "{{ spec }}", "k": 1, "as": "pitfall_refs", "max_chars": 2000 },
     { "search": "guidelines", "query": "{{ spec }}", "k": 1, "as": "guideline_refs", "max_chars": 2000 },
+    { "search": "recipes", "query": "{{ spec }}", "k": 1, "as": "recipe_refs", "max_chars": 2500 },
     { "search": "deps", "query": "{{ spec }}", "k": 1, "as": "dep_refs", "max_chars": 2500 }
   ],
   "on_success": "add_unit.build",

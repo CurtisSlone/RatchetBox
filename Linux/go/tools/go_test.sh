@@ -59,6 +59,11 @@ cd "$tmp" || { echo "cannot enter temp dir"; exit 1; }
 go mod init snippet >/dev/null 2>&1
 gofmt -w ./*.go 2>/dev/null   # cosmetic normalize; real syntax errors surface in vet/test below
 
+# Race detector gates concurrency bugs go test alone misses - enable it where supported (CGO + a C
+# compiler), skip it cleanly otherwise so the oracle still runs.
+RACE=""
+if [ "$(go env CGO_ENABLED 2>/dev/null)" != "0" ] && { command -v gcc >/dev/null 2>&1 || command -v clang >/dev/null 2>&1 || command -v cc >/dev/null 2>&1; }; then RACE="-race"; fi
+
 vet_out="$(GOFLAGS=-mod=mod go vet ./... 2>&1)"
 if [ $? -ne 0 ]; then
   echo "VET FAILED:"
@@ -66,13 +71,13 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-test_out="$(GOFLAGS=-mod=mod go test ./... 2>&1)"
+test_out="$(GOFLAGS=-mod=mod go test $RACE ./... 2>&1)"
 status=$?
 if [ "$status" -eq 0 ]; then
-  echo "OK: vet clean and tests pass with $(go version | awk '{print $3}')"
+  echo "OK: vet clean and tests pass${RACE:+ (with -race)} with $(go version | awk '{print $3}')"
   printf '%s\n' "$test_out"
 else
-  echo "TEST FAILED:"
+  echo "TEST FAILED${RACE:+ (-race)}:"
   printf '%s\n' "$test_out"
 fi
 exit "$status"

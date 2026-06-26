@@ -1,0 +1,10 @@
+{
+  "$comment": "coedit: a coordinated, TRANSACTIONAL multi-file edit - the cross-cutting change single-file edit_file cannot do. Reads several files, regenerates ALL of them for one request, and verifies the whole module ONCE (go vet + go test -race), rolling back every file if it fails. read -> generate -> apply -> done | fix -> reapply -> done | fail. Input: '<comma-separated files> <request>'. proj = $workspace. Run: `ratchet flow . coedit --ws <proj> \"a.go,b.go,c.go <change across them>\"`.",
+  "id": "coedit",
+  "version": "1.0.0",
+  "summary": "Apply one change across several files at once, verified atomically over the whole module (go vet + go test -race), with rollback - for cross-cutting edits like a signature change.",
+  "entry": "coedit.read",
+  "inputs": ["files", "request"],
+  "budgets": { "max_steps": 12, "max_total_tokens": 30000, "max_wallclock_seconds": 1200 },
+  "nodes": ["coedit.read", "coedit.generate", "coedit.apply", "coedit.fix", "coedit.reapply", "coedit.done", "coedit.fail"]
+}

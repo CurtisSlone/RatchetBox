@@ -1,0 +1,13 @@
+{
+  "id": "coedit.fix",
+  "kind": "generate",
+  "prompt": "./prompt.md",
+  "inputs": [
+    { "from": "request", "path": ".", "as": "request" },
+    { "from": "coedit.read", "path": ".", "as": "current", "max_chars": 12000 },
+    { "from": "coedit.generate", "path": ".", "as": "prev", "max_chars": 8000 },
+    { "from": "coedit.apply", "path": ".", "as": "errors", "max_chars": 3000 }
+  ],
+  "on_success": "coedit.reapply",
+  "on_failure": "coedit.fail"
+}

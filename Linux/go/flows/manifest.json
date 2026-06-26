@@ -54,6 +54,36 @@
       "summary": "Draft well-formed Go build spec(s) from a description (one unit or a whole system), validated and written into a workspace - the front-end to compose.",
       "entry": "spec.generate",
       "nodes": 6
+    },
+    {
+      "id": "harden",
+      "summary": "Run the full quality/security gate over a workspace (gofmt, vet, build, test -race, staticcheck, govulncheck, gosec); pass only if all present tools are clean.",
+      "entry": "harden.check",
+      "nodes": 3
+    },
+    {
+      "id": "learn",
+      "summary": "Draft a kb/pitfalls entry for a recurring Go failure class (from mine_runs) and add it to the knowledge base - the self-improvement loop.",
+      "entry": "learn.generate",
+      "nodes": 6
+    },
+    {
+      "id": "refactor",
+      "summary": "Type-safe rename across a module: the model maps a request to a target, gorename renames every reference and verifies the build.",
+      "entry": "refactor.api",
+      "nodes": 5
+    },
+    {
+      "id": "upgrade",
+      "summary": "Change a dependency/toolchain version in a workspace, verified with the full quality gate and rolled back if it breaks.",
+      "entry": "upgrade.exec",
+      "nodes": 3
+    },
+    {
+      "id": "coedit",
+      "summary": "Apply one change across several files at once, verified atomically over the whole module (go vet + go test -race), with rollback - for cross-cutting edits.",
+      "entry": "coedit.read",
+      "nodes": 7
     }
   ]
 }

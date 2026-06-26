@@ -7,8 +7,15 @@
       "script": "tools/go_check.sh",
       "inputSchema": {
         "type": "object",
-        "properties": { "code": { "type": "string", "description": "a complete Go source file" } },
-        "required": ["code"]
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "a complete Go source file"
+          }
+        },
+        "required": [
+          "code"
+        ]
       },
       "stdin": "code",
       "timeout": 90
@@ -19,8 +26,15 @@
       "script": "tools/go_test.sh",
       "inputSchema": {
         "type": "object",
-        "properties": { "code": { "type": "string", "description": "two marker-separated Go files: solution.go and solution_test.go" } },
-        "required": ["code"]
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "two marker-separated Go files: solution.go and solution_test.go"
+          }
+        },
+        "required": [
+          "code"
+        ]
       },
       "stdin": "code",
       "timeout": 120
@@ -29,118 +43,584 @@
       "name": "doctor_go",
       "description": "Toolbelt probe for `ratchet doctor` (analog of cpp's doctor_cl): reports the Go toolbelt and its optional linters. Exit 0 if the required `go` toolchain (build/vet/test) is present, 1 if not. Optional linters are reported as info, never block. Run directly with `/do doctor_go`.",
       "script": "tools/doctor_go.sh",
-      "inputSchema": { "type": "object", "properties": {} },
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
       "timeout": 30
     },
     {
       "name": "new_module",
       "description": "Scaffold a Go module workspace for composition under workspaces/<name> (go.mod, PROJECT.md, specs/). Every composed unit is a file in `package main` at the module root. Arg: spec = the module name. Then drop .spec files in workspaces/<name>/specs and run `compose --ws <name>`.",
-      "command": ["bash", "tools/new_module.sh", "{spec}"],
-      "inputSchema": { "type": "object", "properties": { "spec": { "type": "string", "description": "module/workspace name" } }, "required": ["spec"] },
+      "command": [
+        "bash",
+        "tools/new_module.sh",
+        "{spec}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "spec": {
+            "type": "string",
+            "description": "module/workspace name"
+          }
+        },
+        "required": [
+          "spec"
+        ]
+      },
       "timeout": 30
     },
     {
       "name": "read_specs",
       "description": "Read every .spec file in a directory (or one .spec file) and print contents labeled by filename, for compose's plan step and add_unit's per-unit read. Arg: dir-or-file (workspace-relative paths resolve under workspaces/).",
-      "command": ["bash", "tools/read_specs.sh", "{dir}"],
-      "inputSchema": { "type": "object", "properties": { "dir": { "type": "string" } }, "required": ["dir"] },
+      "command": [
+        "bash",
+        "tools/read_specs.sh",
+        "{dir}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dir": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "dir"
+        ]
+      },
       "timeout": 30
     },
     {
       "name": "module_api",
       "description": "Emit the existing API surface of a composed module: every top-level type/func and method declaration in its .go files, labeled by file - the authoritative names a new unit must call verbatim. Arg: proj (workspace name).",
-      "command": ["bash", "tools/module_api.sh", "{proj}"],
-      "inputSchema": { "type": "object", "properties": { "proj": { "type": "string" } }, "required": ["proj"] },
+      "command": [
+        "bash",
+        "tools/module_api.sh",
+        "{proj}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proj": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "proj"
+        ]
+      },
       "timeout": 30
     },
     {
       "name": "read_module",
       "description": "Show a composed module's state for grounding: PROJECT.md, go.mod, and the .go file tree. Arg: proj (workspace name).",
-      "command": ["bash", "tools/read_module.sh", "{proj}"],
-      "inputSchema": { "type": "object", "properties": { "proj": { "type": "string" } }, "required": ["proj"] },
+      "command": [
+        "bash",
+        "tools/read_module.sh",
+        "{proj}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proj": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "proj"
+        ]
+      },
       "timeout": 30
     },
     {
       "name": "stage_build",
       "description": "Compose per-unit oracle: write a generated Go file into a module workspace and build the WHOLE module (go build ./...). Exit 0 iff the whole module compiles. Args: proj, path; the Go source on stdin.",
-      "command": ["bash", "tools/stage_build.sh", "{proj}", "{path}"],
-      "inputSchema": { "type": "object", "properties": { "proj": { "type": "string" }, "path": { "type": "string", "description": "target file under the module, e.g. main.go or warehouse.go" }, "code": { "type": "string", "description": "complete Go source" } }, "required": ["proj", "path", "code"] },
+      "command": [
+        "bash",
+        "tools/stage_build.sh",
+        "{proj}",
+        "{path}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proj": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string",
+            "description": "target file under the module, e.g. main.go or warehouse.go"
+          },
+          "code": {
+            "type": "string",
+            "description": "complete Go source"
+          }
+        },
+        "required": [
+          "proj",
+          "path",
+          "code"
+        ]
+      },
       "stdin": "code",
       "timeout": 120
     },
     {
       "name": "plan_units",
       "description": "Turn a compose build-plan JSON (on stdin) into the foreach worklist: one line per unit in dependency order, '<targetpath> <specfile>'. Entry (role behavior/gui) -> main.go; others -> <name>.go at the module root.",
-      "command": ["bash", "tools/plan_units.sh"],
-      "inputSchema": { "type": "object", "properties": { "plan": { "type": "string" } }, "required": ["plan"] },
+      "command": [
+        "bash",
+        "tools/plan_units.sh"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "plan": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "plan"
+        ]
+      },
       "stdin": "plan",
       "timeout": 20
     },
     {
       "name": "register_file",
       "description": "Record a composed unit in the module's PROJECT.md changelog (idempotent, best-effort, always exits 0). Args: proj, path, role.",
-      "command": ["bash", "tools/register_file.sh", "{proj}", "{path}", "{role}"],
-      "inputSchema": { "type": "object", "properties": { "proj": { "type": "string" }, "path": { "type": "string" }, "role": { "type": "string" } }, "required": ["proj", "path", "role"] },
+      "command": [
+        "bash",
+        "tools/register_file.sh",
+        "{proj}",
+        "{path}",
+        "{role}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proj": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "proj",
+          "path",
+          "role"
+        ]
+      },
       "timeout": 20
     },
     {
       "name": "module_check",
       "description": "Whole-module FINAL oracle for compose: go build ./... then go test ./... over the entire module. Exit 0 iff both pass (behavior, not just compilation). Arg: proj.",
-      "command": ["bash", "tools/module_check.sh", "{proj}"],
-      "inputSchema": { "type": "object", "properties": { "proj": { "type": "string" } }, "required": ["proj"] },
+      "command": [
+        "bash",
+        "tools/module_check.sh",
+        "{proj}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proj": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "proj"
+        ]
+      },
       "timeout": 150
     },
     {
       "name": "stage_check",
       "description": "Project-lifecycle oracle (add_file/edit_file): write a generated Go file into a workspace, then go vet ./... + go test ./... over the WHOLE module. Exit 0 iff both pass. Uses vet (not build) so it works whether or not the module has a func main yet. Args: proj, path; the Go source on stdin.",
-      "command": ["bash", "tools/stage_check.sh", "{proj}", "{path}"],
-      "inputSchema": { "type": "object", "properties": { "proj": { "type": "string" }, "path": { "type": "string", "description": "target file under the workspace, e.g. parser.go" }, "code": { "type": "string", "description": "complete Go source" } }, "required": ["proj", "path", "code"] },
+      "command": [
+        "bash",
+        "tools/stage_check.sh",
+        "{proj}",
+        "{path}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proj": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string",
+            "description": "target file under the workspace, e.g. parser.go"
+          },
+          "code": {
+            "type": "string",
+            "description": "complete Go source"
+          }
+        },
+        "required": [
+          "proj",
+          "path",
+          "code"
+        ]
+      },
       "stdin": "code",
       "timeout": 120
     },
     {
       "name": "read_file",
       "description": "Print one workspace file verbatim, to ground a surgical edit on its exact current contents. Args: proj, path. Exits 1 if the file is missing.",
-      "command": ["bash", "tools/read_file.sh", "{proj}", "{path}"],
-      "inputSchema": { "type": "object", "properties": { "proj": { "type": "string" }, "path": { "type": "string" } }, "required": ["proj", "path"] },
+      "command": [
+        "bash",
+        "tools/read_file.sh",
+        "{proj}",
+        "{path}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proj": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "proj",
+          "path"
+        ]
+      },
       "timeout": 20
     },
     {
       "name": "log_edit",
       "description": "Append an 'edited' changelog line to a workspace's PROJECT.md (best-effort, always exits 0). Args: proj, path, summary.",
-      "command": ["bash", "tools/log_edit.sh", "{proj}", "{path}", "{summary}"],
-      "inputSchema": { "type": "object", "properties": { "proj": { "type": "string" }, "path": { "type": "string" }, "summary": { "type": "string" } }, "required": ["proj", "path", "summary"] },
+      "command": [
+        "bash",
+        "tools/log_edit.sh",
+        "{proj}",
+        "{path}",
+        "{summary}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proj": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "proj",
+          "path",
+          "summary"
+        ]
+      },
       "timeout": 20
     },
     {
       "name": "add_dep",
       "description": "Add a third-party Go module to a workspace AND ingest its API into the `deps` KB so the lifecycle/compose flows ground on its real surface. Runs go get + go mod tidy in the workspace, writes go doc -all to kb/deps/<slug>.md, re-indexes. Needs network. Args: proj (workspace), mod (import path, optionally @version). Run via /do add_dep <proj> <mod>.",
-      "command": ["bash", "tools/add_dep.sh", "{proj}", "{mod}"],
-      "inputSchema": { "type": "object", "properties": { "proj": { "type": "string" }, "mod": { "type": "string", "description": "module import path, optionally @version" } }, "required": ["proj", "mod"] },
+      "command": [
+        "bash",
+        "tools/add_dep.sh",
+        "{proj}",
+        "{mod}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proj": {
+            "type": "string"
+          },
+          "mod": {
+            "type": "string",
+            "description": "module import path, optionally @version"
+          }
+        },
+        "required": [
+          "proj",
+          "mod"
+        ]
+      },
       "timeout": 180
     },
     {
       "name": "run_app",
       "description": "Build and RUN a workspace's main, capturing stdout/stderr/exit (the go run / run_app analog). A program that exits reports its real exit code; a blocking server is stopped after the timeout and reported as still-running. Observes behavior; the build/tests remain the oracle. Args: proj, optional secs (default 3). Run via /do run_app <proj>.",
-      "command": ["bash", "tools/run_app.sh", "{proj}", "{secs}"],
-      "inputSchema": { "type": "object", "properties": { "proj": { "type": "string" }, "secs": { "type": "string", "description": "seconds to run before stopping (default 3)" } }, "required": ["proj"] },
+      "command": [
+        "bash",
+        "tools/run_app.sh",
+        "{proj}",
+        "{secs}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proj": {
+            "type": "string"
+          },
+          "secs": {
+            "type": "string",
+            "description": "seconds to run before stopping (default 3)"
+          }
+        },
+        "required": [
+          "proj"
+        ]
+      },
       "timeout": 60
     },
     {
       "name": "spec_check",
       "description": "Spec oracle: validate that marker-separated .spec drafts (on stdin) are well-formed - each needs a name:, a valid role: (data/interface/component/behavior/gui/test), and at least one of api:/behavior:/intent:. Exit 0 iff all valid. No side effects. Run via /do spec_check.",
-      "command": ["bash", "tools/spec_check.sh"],
-      "inputSchema": { "type": "object", "properties": { "code": { "type": "string", "description": "marker-separated .spec drafts" } }, "required": ["code"] },
+      "command": [
+        "bash",
+        "tools/spec_check.sh"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "marker-separated .spec drafts"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
       "stdin": "code",
       "timeout": 20
     },
     {
       "name": "write_specs",
       "description": "Validate (via spec_check) marker-separated .spec drafts (on stdin) and, if all well-formed, write each into <proj>/specs/ (bootstrapping go.mod + specs/ if absent). Atomic: writes nothing if any spec is invalid. Args: proj; specs on stdin.",
-      "command": ["bash", "tools/write_specs.sh", "{proj}"],
-      "inputSchema": { "type": "object", "properties": { "proj": { "type": "string" }, "code": { "type": "string", "description": "marker-separated .spec drafts" } }, "required": ["proj", "code"] },
+      "command": [
+        "bash",
+        "tools/write_specs.sh",
+        "{proj}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proj": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "description": "marker-separated .spec drafts"
+          }
+        },
+        "required": [
+          "proj",
+          "code"
+        ]
+      },
       "stdin": "code",
       "timeout": 30
+    },
+    {
+      "name": "go_quality",
+      "description": "Production gate: run the full quality/security suite over a workspace (gofmt, go vet, go build, go test -race, staticcheck, govulncheck, gosec) and exit 0 only if every present tool is clean. Absent tools are skipped. govulncheck needs network. Arg: proj. Run via /do go_quality <proj> or the harden flow.",
+      "command": [
+        "bash",
+        "tools/go_quality.sh",
+        "{proj}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proj": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "proj"
+        ]
+      },
+      "timeout": 180
+    },
+    {
+      "name": "mine_runs",
+      "description": "Self-improvement engine: scan runs/ for recurring oracle failures, cluster them into error classes, and flag which are NOT yet covered by kb/pitfalls (KB candidates). Run via /do mine_runs.",
+      "command": [
+        "bash",
+        "tools/mine_runs.sh"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "timeout": 30
+    },
+    {
+      "name": "write_pitfall",
+      "description": "Oracle+writer for the learn flow: validate a drafted kb/pitfalls entry (markdown on stdin: needs an H1 title + a ```go block) and write it to kb/pitfalls, reindexing. Exit 1 if malformed.",
+      "command": [
+        "bash",
+        "tools/write_pitfall.sh"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "stdin": "code",
+      "timeout": 30
+    },
+    {
+      "name": "link_repo",
+      "description": "Work on an existing Go module outside workspaces/: symlink it in as workspaces/<name> so the lifecycle flows operate on the real repo. Args: name, path (module dir with go.mod). Run via /do link_repo <name> <path>.",
+      "command": [
+        "bash",
+        "tools/link_repo.sh",
+        "{name}",
+        "{path}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "path"
+        ]
+      },
+      "timeout": 20
+    },
+    {
+      "name": "gorename",
+      "description": "Type-safe rename across a workspace module (gorename): renames every reference by type across files, then verifies the build. Args: proj, target (name or Type.Method), newname. Run via /do gorename <proj> <target> <new>.",
+      "command": [
+        "bash",
+        "tools/gorename.sh",
+        "{proj}",
+        "{target}",
+        "{newname}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proj": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          },
+          "newname": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "proj",
+          "target",
+          "newname"
+        ]
+      },
+      "timeout": 60
+    },
+    {
+      "name": "bump",
+      "description": "Verified version change for a workspace (with rollback): snapshot go.mod/go.sum, apply the change, go mod tidy, then run go_quality; keep only if clean, else roll back. Args: proj, change (<pkg>@<ver>, go=<ver>, -u, or tidy). Run via /do bump <proj> <change>.",
+      "command": [
+        "bash",
+        "tools/bump.sh",
+        "{proj}",
+        "{change}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proj": {
+            "type": "string"
+          },
+          "change": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "proj",
+          "change"
+        ]
+      },
+      "timeout": 200
+    },
+    {
+      "name": "read_files",
+      "description": "Print several workspace files, each under a === path === marker, as input to a coordinated multi-file edit. Args: proj, comma-separated file list.",
+      "command": [
+        "bash",
+        "tools/read_files.sh",
+        "{proj}",
+        "{files}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proj": {
+            "type": "string"
+          },
+          "files": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "proj",
+          "files"
+        ]
+      },
+      "timeout": 30
+    },
+    {
+      "name": "stage_files",
+      "description": "Transactional multi-file oracle: write marker-separated Go files (stdin), verify the whole module (go vet + go test -race), keep only if clean else roll back every touched file. Arg: proj; payload on stdin.",
+      "command": [
+        "bash",
+        "tools/stage_files.sh",
+        "{proj}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proj": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "proj",
+          "code"
+        ]
+      },
+      "stdin": "code",
+      "timeout": 150
     }
   ]
 }

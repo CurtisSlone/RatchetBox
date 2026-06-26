@@ -37,5 +37,7 @@ only unless the spec says otherwise.
 {{ pitfall_refs }}
 ### Idiomatic style
 {{ guideline_refs }}
+### Recipe (playbook for this kind of unit - follow its API shape)
+{{ recipe_refs }}
 ### Third-party module (already in this workspace's go.mod)
 {{ dep_refs }}

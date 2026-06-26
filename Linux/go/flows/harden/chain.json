@@ -1,0 +1,9 @@
+{
+  "$comment": "harden: the production gate. Runs the full quality/security suite over a workspace (go_quality: gofmt, vet, build, test -race, staticcheck, govulncheck, gosec) and passes only if every present tool is clean. Deterministic (no model) - a thin wrapper over the go_quality tool, like `run`. Findings are surfaced for you to fix (e.g. with edit_file). Run: `ratchet flow . harden --ws <proj> \"\"` (console: `/ws switch <proj>` then `/flow harden`), or `/do go_quality <proj>`.",
+  "id": "harden",
+  "version": "1.0.0",
+  "summary": "Run the full quality/security gate over a workspace (gofmt, vet, build, test -race, staticcheck, govulncheck, gosec); pass only if all present tools are clean.",
+  "entry": "harden.check",
+  "budgets": { "max_steps": 4, "max_total_tokens": 1000, "max_wallclock_seconds": 300 },
+  "nodes": ["harden.check", "harden.done", "harden.fail"]
+}

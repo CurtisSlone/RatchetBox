@@ -1,0 +1,1 @@
+{ "id": "harden.fail", "kind": "exit", "outcome": "aborted: a quality/security gate failed (see findings)" }
