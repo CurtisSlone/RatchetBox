@@ -1,0 +1,14 @@
+{
+  "$comment": "The oracle: write the file into the workspace and go vet + go test the WHOLE module. Failure -> one repair.",
+  "id": "add_file.check",
+  "kind": "action",
+  "tool": "stage_check",
+  "inputs": [
+    { "from": "$workspace", "path": ".", "as": "proj" },
+    { "from": "path", "path": ".", "as": "path" },
+    { "from": "add_file.generate", "path": ".", "as": "code" }
+  ],
+  "body": { "proj": "{{ proj }}", "path": "{{ path }}", "code": "{{ code }}" },
+  "on_success": "add_file.register",
+  "on_failure": "add_file.fix"
+}

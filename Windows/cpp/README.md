@@ -5,7 +5,7 @@ Generate, edit, and build **C++** with the local model, gated by the MSVC compil
 patterns, MSVC errors, and a large slice of the Win32 API), so the small model writes idiomatic,
 compiling code - and when it doesn't, the compiler's errors drive a bounded repair.
 
-Open it from a [Ratchet](https://github.com/CurtisSlone/Ratchet) checkout:
+Open it from a [Ratchet](https://github.com/scanset/Ratchet) checkout:
 
 ```
 .\ratchet.cmd ..\RatchetBox\cpp

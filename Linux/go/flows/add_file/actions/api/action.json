@@ -1,0 +1,10 @@
+{
+  "$comment": "The exact existing API of the workspace - the authoritative names the new file must call. on_failure still proceeds to generate (grounding, not a gate).",
+  "id": "add_file.api",
+  "kind": "action",
+  "tool": "module_api",
+  "inputs": [ { "from": "$workspace", "path": ".", "as": "proj" } ],
+  "body": { "proj": "{{ proj }}" },
+  "on_success": "add_file.generate",
+  "on_failure": "add_file.generate"
+}

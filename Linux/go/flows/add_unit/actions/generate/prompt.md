@@ -28,5 +28,7 @@ names something differently than the API, the API WINS.
 ## Reference (retrieved for this spec; may be empty - use only if relevant)
 ### Go standard library
 {{ stdlib_refs }}
+### Third-party module (already in this workspace's go.mod)
+{{ dep_refs }}
 ### Design pattern
 {{ pattern_refs }}

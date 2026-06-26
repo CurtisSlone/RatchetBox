@@ -1,7 +1,7 @@
 # template - a starter ratchet (lifecycle + composition)
 
 The skeleton to copy when starting a new ratchet for the
-[Ratchet](https://github.com/CurtisSlone/Ratchet) engine. It ships the GENERIC machinery working and the
+[Ratchet](https://github.com/scanset/Ratchet) engine. It ships the GENERIC machinery working and the
 DOMAIN-SPECIFIC pieces as clearly-marked `CHANGE_ME` stubs - implement those for your language and the
 flows light up. `ratchet validate-flow` passes out of the box.
 

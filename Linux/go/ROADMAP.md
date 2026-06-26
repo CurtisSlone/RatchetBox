@@ -157,6 +157,34 @@ We author and run on Linux, so every tool is a `.sh` script and that is the supp
 bash oracle already covers Linux, WSL, and macOS. A later, optional pass can add a `.ps1` sibling
 per oracle for native Windows; it is not in scope for the phases below and should not slow them down.
 
+## Third-party modules (DONE 2026-06-25)
+
+`tools/add_dep.sh` (`/do add_dep <ws> <module[@ver]>`) `go get`s a module into a workspace and ingests
+its `go doc -all` into the `deps` KB (kb/deps/<slug>.md), then re-indexes - the user's insight that a
+new dependency should bring its docs as grounding, using the same offline `go doc` trick as `stdlib`.
+Registered `deps` as a 5th KB; the workspace-generate nodes (`add_file`, `edit_file`, `add_unit`) now
+search it keyed on the request/spec. Gotcha handled: NO `go mod tidy` in add_dep (it would strip the
+not-yet-imported require straight back out). Verified live: added `github.com/google/uuid` to a
+workspace, then `add_file` generated `uuid.New().String()` grounded on the deps KB and passed `go vet`
++ `go test` first try (vet resolves the third-party import; `stage_check` uses vet not build, so no
+`func main` is required).
+
+## KB depth (DONE 2026-06-25/26)
+
+Three new libraries, wired into the `go`/`test` plan-routing (5 query fields now: stdlib, patterns,
+guidelines, pitfalls, idioms; `patterns_q` broadened to cover named algorithms):
+- `guidelines/` (12) - idiomatic-style entries authored from the canonical sources fetched via WebFetch
+  (Effective Go, Code Review Comments, Go Proverbs), real code in fences; attribution in
+  `kb/guidelines/ATTRIBUTION.md` (CC BY 3.0 / BSD).
+- `pitfalls/` (5) - builds-but-wrong traps authored from run evidence: unused imports, nil-map write,
+  loop-var capture, channel deadlock, slice aliasing.
+- `patterns/` += authored `algo_two_heap_streaming_median.md` (verified correct via the go_test oracle).
+
+Result: the two-heap median (run 10), which FAILED even after repair in both earlier batches, now passes
+FIRST TRY. Confirmed it was the grounding: the plan routed `patterns_q="two-heap streaming median"` +
+`stdlib_q="container/heap"`, both reached the prompt. This is the evidence-driven KB loop closing -
+an observed oracle failure became a KB entry that removed the failure.
+
 ## Phased sequence
 
 1. DONE (2026-06-25) - `doctor_go.sh` toolbelt probe (wired into `ratchet.json` requirements) +
@@ -169,7 +197,14 @@ per oracle for native Windows; it is not in scope for the phases below and shoul
    (run `20260625-170206-296`). `gofmt`/`go vet`/`go test` are folded into the one `go_test` oracle;
    split them into standalone oracle nodes later only if the run evidence shows it helps attribution.
 2. Split + grow the KB into the routed taxonomy.
-3. Project lifecycle (`new_project` -> `add_file` / `edit_file`).
+3. DONE (2026-06-25) - project lifecycle on a persistent workspace. Shipped `tools/stage_check.sh`
+   (vet + test whole-module oracle; uses `go vet` not `go build` so it works with or without a
+   `func main`), `tools/read_file.sh`, `tools/log_edit.sh`, and the `add_file` + `edit_file` flows
+   (request-driven, grounded on `module_api` + plan-routing-lite, repair once). `new_module` (from
+   phase 4) scaffolds the workspace. Verified live on the `ledger` module: `add_file` added `double.go`
+   (its first attempt had an unused `strconv` import, which the oracle caught -> repair removed it);
+   `edit_file` then added `math.MaxInt` saturation to `Double`, grounded on the stdlib search, preserving
+   the rest of the file, first try. Daily-use loop now works: new_module -> add_file/edit_file -> compose.
 4. DONE (2026-06-25) - `compose` from specs. Shipped 8 Go-native tools (`new_module`, `read_specs`,
    `module_api`, `stage_build`, `read_module`, `plan_units`, `register_file`, `module_check`) + the
    `add_unit` and `compose` flows. Go-native simplifications over the C# version: every unit shares
@@ -182,6 +217,18 @@ per oracle for native Windows; it is not in scope for the phases below and shoul
    built, and its concurrent `TestCounter` (50 goroutines x 100 = 5000) passed under `go test`. Full
    transcript: `transcripts/phase2-grounded-and-compose.md`.
 5. `.ps1` oracle siblings for native Windows parity.
+
+## Run capability (DONE 2026-06-26)
+
+`tools/run_app.sh` (`/do run_app <proj>`) builds a workspace's `main` and runs it, capturing
+stdout/stderr/exit; a blocking server is stopped after a timeout (default 3s) and reported as
+still-running (exit 0). A thin `run` flow wraps it for `--ws`/`/ws switch` ergonomics
+(`/flow run` after `/ws switch <proj>`, or `ratchet flow . run --ws <proj> ""`). Running needs no
+model, so `run` is a single deterministic action node, not a generate/repair chain - the build + tests
+remain the oracle. Verified by running the composed `pulsehook` server (logs `Listening on :8080`,
+stopped cleanly); transcript with the live console slash-command session in
+`transcripts/pulsehook-run.md`. NOTE: `--ws` is the CLI flag; in the console set the workspace with
+`/ws switch <proj>` first (the `--ws` token is not parsed inside a console `/flow`).
 
 ## Open decisions (settle before building each phase)
 

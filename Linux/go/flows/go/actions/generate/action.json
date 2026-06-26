@@ -9,6 +9,10 @@
     { "search": "stdlib", "query": "{{ stdlib_q }}", "k": 2, "as": "stdlib_refs", "max_chars": 3000 },
     { "from": "go.plan", "path": "patterns_q", "as": "patterns_q" },
     { "search": "patterns", "query": "{{ patterns_q }}", "k": 1, "as": "pattern_refs", "max_chars": 3000 },
+    { "from": "go.plan", "path": "guidelines_q", "as": "guidelines_q" },
+    { "search": "guidelines", "query": "{{ guidelines_q }}", "k": 1, "as": "guideline_refs", "max_chars": 2500 },
+    { "from": "go.plan", "path": "pitfalls_q", "as": "pitfalls_q" },
+    { "search": "pitfalls", "query": "{{ pitfalls_q }}", "k": 1, "as": "pitfall_refs", "max_chars": 2000 },
     { "from": "go.plan", "path": "idioms_q", "as": "idioms_q" },
     { "search": "kb", "query": "{{ idioms_q }}", "k": 1, "as": "refs", "max_chars": 1500 }
   ],

@@ -14,7 +14,7 @@
           "type": "object",
           "properties": {
             "name": { "type": "string" },
-            "role": { "type": "string", "enum": ["data", "interface", "component", "behavior", "gui"] },
+            "role": { "type": "string", "enum": ["data", "interface", "component", "behavior", "gui", "test"] },
             "dependsOn": { "type": "array", "items": { "type": "string" } },
             "spec": { "type": "string", "description": "the source .spec filename" }
           },

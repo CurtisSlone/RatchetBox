@@ -9,11 +9,13 @@
   "output_schema": {
     "type": "object",
     "properties": {
-      "stdlib_q":   { "type": "string", "description": "a Go standard-library package/symbol query, or empty" },
-      "patterns_q": { "type": "string", "description": "a GoF design-pattern query, or empty" },
-      "idioms_q":   { "type": "string", "description": "a Go-idioms query, or empty" }
+      "stdlib_q":     { "type": "string", "description": "a Go standard-library package/symbol query, or empty" },
+      "patterns_q":   { "type": "string", "description": "a design-pattern OR algorithm-pattern query, or empty" },
+      "guidelines_q": { "type": "string", "description": "an idiomatic-style query (Effective Go / Code Review Comments), or empty" },
+      "pitfalls_q":   { "type": "string", "description": "a builds-but-wrong trap query, or empty" },
+      "idioms_q":     { "type": "string", "description": "a Go-idioms query, or empty" }
     },
-    "required": ["stdlib_q", "patterns_q", "idioms_q"]
+    "required": ["stdlib_q", "patterns_q", "guidelines_q", "pitfalls_q", "idioms_q"]
   },
   "on_success": "go.generate",
   "on_failure": "go.generate"

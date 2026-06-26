@@ -9,7 +9,8 @@
     { "from": "add_unit.readproj", "path": ".", "as": "project", "max_chars": 5000 },
     { "from": "path", "path": ".", "as": "path" },
     { "search": "stdlib", "query": "{{ spec }}", "k": 1, "as": "stdlib_refs", "max_chars": 2500 },
-    { "search": "patterns", "query": "{{ spec }}", "k": 1, "as": "pattern_refs", "max_chars": 2500 }
+    { "search": "patterns", "query": "{{ spec }}", "k": 1, "as": "pattern_refs", "max_chars": 2500 },
+    { "search": "deps", "query": "{{ spec }}", "k": 1, "as": "dep_refs", "max_chars": 2500 }
   ],
   "on_success": "add_unit.build",
   "on_failure": "add_unit.fail"

@@ -1,0 +1,9 @@
+{
+  "id": "add_file.readproj",
+  "kind": "action",
+  "tool": "read_module",
+  "inputs": [ { "from": "$workspace", "path": ".", "as": "proj" } ],
+  "body": { "proj": "{{ proj }}" },
+  "on_success": "add_file.api",
+  "on_failure": "add_file.fail"
+}

@@ -1,0 +1,1 @@
+{ "id": "edit_file.fail", "kind": "exit", "outcome": "aborted: file missing, or edit did not vet/test after one repair" }

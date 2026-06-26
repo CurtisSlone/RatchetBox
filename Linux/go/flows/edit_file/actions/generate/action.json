@@ -1,0 +1,16 @@
+{
+  "$comment": "Regenerate the WHOLE file applying the requested change, grounded on its exact current contents, the module state, and a stdlib hit keyed on the request.",
+  "id": "edit_file.generate",
+  "kind": "generate",
+  "prompt": "./prompt.md",
+  "inputs": [
+    { "from": "request", "path": ".", "as": "request" },
+    { "from": "path", "path": ".", "as": "path" },
+    { "from": "edit_file.read", "path": ".", "as": "current", "max_chars": 8000 },
+    { "from": "edit_file.readproj", "path": ".", "as": "project", "max_chars": 4000 },
+    { "search": "stdlib", "query": "{{ request }}", "k": 1, "as": "stdlib_refs", "max_chars": 2500 },
+    { "search": "deps", "query": "{{ request }}", "k": 1, "as": "dep_refs", "max_chars": 2500 }
+  ],
+  "on_success": "edit_file.check",
+  "on_failure": "edit_file.fail"
+}

@@ -27,8 +27,14 @@ Rules:
 ### Go standard library
 {{ stdlib_refs }}
 
-### Design pattern
+### Design / algorithm pattern
 {{ pattern_refs }}
+
+### Idiomatic style (Effective Go / Code Review Comments)
+{{ guideline_refs }}
+
+### Pitfalls to avoid (builds-but-wrong)
+{{ pitfall_refs }}
 
 ### Go idioms
 {{ refs }}

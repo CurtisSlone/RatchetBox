@@ -24,6 +24,24 @@
       "summary": "Generate one composed Go unit against the accumulated module, build the whole module, repair once, register. (Called by compose's foreach.)",
       "entry": "add_unit.readspec",
       "nodes": 10
+    },
+    {
+      "id": "add_file",
+      "summary": "Add a new Go file to a workspace from a request; grounded on the module's existing API, verified with go vet + go test, repaired once, recorded.",
+      "entry": "add_file.readproj",
+      "nodes": 9
+    },
+    {
+      "id": "edit_file",
+      "summary": "Apply a change to an existing Go file in a workspace; grounded on its current contents, verified with go vet + go test, repaired once, logged.",
+      "entry": "edit_file.read",
+      "nodes": 9
+    },
+    {
+      "id": "run",
+      "summary": "Build and run a workspace's main, capturing stdout/stderr/exit (a server is stopped after a few seconds).",
+      "entry": "run.exec",
+      "nodes": 3
     }
   ]
 }

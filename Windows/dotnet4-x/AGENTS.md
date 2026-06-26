@@ -1,6 +1,6 @@
 # AGENTS.md - the dotnet ratchet (for AI agents)
 
-A C# / PowerShell ratchet for the [Ratchet](https://github.com/CurtisSlone/Ratchet) engine: the local
+A C# / PowerShell ratchet for the [Ratchet](https://github.com/scanset/Ratchet) engine: the local
 model writes C# / PowerShell, the in-box `csc` / PS parser is the Oracle. Humans: see
 [README.md](README.md). Operating rules: [SYSTEM.md](SYSTEM.md). Layout: [STRUCTURE.md](STRUCTURE.md).
 

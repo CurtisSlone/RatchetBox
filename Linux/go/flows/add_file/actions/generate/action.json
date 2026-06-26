@@ -1,0 +1,17 @@
+{
+  "$comment": "Generate the new file, grounded on the request, the module's existing API + state, and (plan-routing-lite) a stdlib + a patterns hit keyed on the request. Goes to {{ path }} in package main at the module root.",
+  "id": "add_file.generate",
+  "kind": "generate",
+  "prompt": "./prompt.md",
+  "inputs": [
+    { "from": "request", "path": ".", "as": "request" },
+    { "from": "path", "path": ".", "as": "path" },
+    { "from": "add_file.api", "path": ".", "as": "api" },
+    { "from": "add_file.readproj", "path": ".", "as": "project", "max_chars": 5000 },
+    { "search": "stdlib", "query": "{{ request }}", "k": 1, "as": "stdlib_refs", "max_chars": 2500 },
+    { "search": "patterns", "query": "{{ request }}", "k": 1, "as": "pattern_refs", "max_chars": 2500 },
+    { "search": "deps", "query": "{{ request }}", "k": 1, "as": "dep_refs", "max_chars": 2500 }
+  ],
+  "on_success": "add_file.check",
+  "on_failure": "add_file.fail"
+}

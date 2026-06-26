@@ -1,7 +1,7 @@
 # AGENTS.md - the template ratchet (for AI agents)
 
 The skeleton to copy when starting a new ratchet for the
-[Ratchet](https://github.com/CurtisSlone/Ratchet) engine. Humans: see [README.md](README.md). Layout:
+[Ratchet](https://github.com/scanset/Ratchet) engine. Humans: see [README.md](README.md). Layout:
 [STRUCTURE.md](STRUCTURE.md).
 
 ## To create a new ratchet

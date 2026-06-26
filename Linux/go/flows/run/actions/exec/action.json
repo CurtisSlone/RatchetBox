@@ -1,0 +1,10 @@
+{
+  "$comment": "Build + run the workspace's main via run_app (proj = $workspace), capturing output. A non-zero exit (build failure or the program erroring) routes to fail; a clean run or a stopped server routes to done.",
+  "id": "run.exec",
+  "kind": "action",
+  "tool": "run_app",
+  "inputs": [ { "from": "$workspace", "path": ".", "as": "proj" } ],
+  "body": { "proj": "{{ proj }}", "secs": "5" },
+  "on_success": "run.done",
+  "on_failure": "run.fail"
+}

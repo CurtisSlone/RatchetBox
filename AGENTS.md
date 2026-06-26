@@ -1,7 +1,7 @@
 # AGENTS.md - orientation for AI agents
 
 You are an AI agent working in **RatchetBox**, a collection of *ratchets* for the
-[Ratchet](https://github.com/CurtisSlone/Ratchet) engine. Humans: see [README.md](README.md).
+[Ratchet](https://github.com/scanset/Ratchet) engine. Humans: see [README.md](README.md).
 
 ## What this repo is (and is not)
 

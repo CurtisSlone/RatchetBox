@@ -1,6 +1,6 @@
 # AGENTS.md - the cpp ratchet (for AI agents)
 
-A C++ ratchet for the [Ratchet](https://github.com/CurtisSlone/Ratchet) engine: the local model writes
+A C++ ratchet for the [Ratchet](https://github.com/scanset/Ratchet) engine: the local model writes
 C++, MSVC `cl` is the Oracle. Humans: see [README.md](README.md). Operating rules: [SYSTEM.md](SYSTEM.md).
 Layout: [STRUCTURE.md](STRUCTURE.md).
 

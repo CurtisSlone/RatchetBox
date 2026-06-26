@@ -3,6 +3,22 @@
   "name": "patterns",
   "entries": [
     {
+      "id": "algo_two_heap_streaming_median",
+      "title": "Two-heap streaming median (Go algorithm pattern)",
+      "path": "algo_two_heap_streaming_median.md",
+      "summary": "Maintain the running median of a stream with two heaps: a max-heap for the lower half and a min-heap",
+      "keywords": [
+        "lower",
+        "upper",
+        "heap",
+        "data",
+        "intheap",
+        "func",
+        "push",
+        "return"
+      ]
+    },
+    {
       "id": "behavioral_chainofresponsibility",
       "title": "ChainOfResponsibility (Behavioral Go design pattern)",
       "path": "behavioral_chainofresponsibility.md",

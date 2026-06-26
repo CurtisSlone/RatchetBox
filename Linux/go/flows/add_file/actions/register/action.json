@@ -1,0 +1,13 @@
+{
+  "$comment": "Record the new file in PROJECT.md. Best-effort: register_file always exits 0, so this never fails the file (it already vets + tests).",
+  "id": "add_file.register",
+  "kind": "action",
+  "tool": "register_file",
+  "inputs": [
+    { "from": "$workspace", "path": ".", "as": "proj" },
+    { "from": "path", "path": ".", "as": "path" }
+  ],
+  "body": { "proj": "{{ proj }}", "path": "{{ path }}", "role": "added file" },
+  "on_success": "add_file.done",
+  "on_failure": "add_file.done"
+}

@@ -1,0 +1,10 @@
+{
+  "$comment": "add_file: add ONE new Go file to a PERSISTENT workspace (a module you keep), from a free-text request. Reads the module state + its existing API (so the new file calls real names), generates a grounded file, then go vet + go test the WHOLE module (stage_check), repairs once, and records it. Operator-facing: `ratchet flow . add_file --ws <proj> \"<path> <request>\"`; $input splits into path + request. proj = $workspace. Like compose's add_unit but request-driven, not spec-driven, and on a kept workspace.",
+  "id": "add_file",
+  "version": "1.0.0",
+  "summary": "Add a new Go file to a workspace from a request; grounded on the module's existing API, verified with go vet + go test, repaired once, recorded.",
+  "entry": "add_file.readproj",
+  "inputs": ["path", "request"],
+  "budgets": { "max_steps": 12, "max_total_tokens": 22000, "max_wallclock_seconds": 900 },
+  "nodes": ["add_file.readproj", "add_file.api", "add_file.generate", "add_file.check", "add_file.fix", "add_file.recheck", "add_file.register", "add_file.done", "add_file.fail"]
+}

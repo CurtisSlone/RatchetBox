@@ -1,0 +1,15 @@
+{
+  "$comment": "Repair: regenerate the whole file given the diagnostics + its current contents + the previous attempt. Bounded - one fix, then recheck.",
+  "id": "edit_file.fix",
+  "kind": "generate",
+  "prompt": "./prompt.md",
+  "inputs": [
+    { "from": "request", "path": ".", "as": "request" },
+    { "from": "path", "path": ".", "as": "path" },
+    { "from": "edit_file.read", "path": ".", "as": "current", "max_chars": 8000 },
+    { "from": "edit_file.generate", "path": ".", "as": "prev", "max_chars": 5000 },
+    { "from": "edit_file.check", "path": ".", "as": "errors", "max_chars": 2500 }
+  ],
+  "on_success": "edit_file.recheck",
+  "on_failure": "edit_file.fail"
+}

@@ -1,0 +1,10 @@
+{
+  "$comment": "edit_file: apply a change to an EXISTING Go file in a persistent workspace. Reads the file's exact current contents + the module state, regenerates the whole file per the request, then go vet + go test the WHOLE module (stage_check), repairs once, and logs the edit. Operator-facing: `ratchet flow . edit_file --ws <proj> \"<path> <request>\"`; $input splits into path + request. proj = $workspace.",
+  "id": "edit_file",
+  "version": "1.0.0",
+  "summary": "Apply a change to an existing Go file in a workspace; grounded on its current contents, verified with go vet + go test, repaired once, logged.",
+  "entry": "edit_file.read",
+  "inputs": ["path", "request"],
+  "budgets": { "max_steps": 12, "max_total_tokens": 22000, "max_wallclock_seconds": 900 },
+  "nodes": ["edit_file.read", "edit_file.readproj", "edit_file.generate", "edit_file.check", "edit_file.fix", "edit_file.recheck", "edit_file.log", "edit_file.done", "edit_file.fail"]
+}

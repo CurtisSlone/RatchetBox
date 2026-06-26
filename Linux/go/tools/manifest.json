@@ -89,6 +89,42 @@
       "command": ["bash", "tools/module_check.sh", "{proj}"],
       "inputSchema": { "type": "object", "properties": { "proj": { "type": "string" } }, "required": ["proj"] },
       "timeout": 150
+    },
+    {
+      "name": "stage_check",
+      "description": "Project-lifecycle oracle (add_file/edit_file): write a generated Go file into a workspace, then go vet ./... + go test ./... over the WHOLE module. Exit 0 iff both pass. Uses vet (not build) so it works whether or not the module has a func main yet. Args: proj, path; the Go source on stdin.",
+      "command": ["bash", "tools/stage_check.sh", "{proj}", "{path}"],
+      "inputSchema": { "type": "object", "properties": { "proj": { "type": "string" }, "path": { "type": "string", "description": "target file under the workspace, e.g. parser.go" }, "code": { "type": "string", "description": "complete Go source" } }, "required": ["proj", "path", "code"] },
+      "stdin": "code",
+      "timeout": 120
+    },
+    {
+      "name": "read_file",
+      "description": "Print one workspace file verbatim, to ground a surgical edit on its exact current contents. Args: proj, path. Exits 1 if the file is missing.",
+      "command": ["bash", "tools/read_file.sh", "{proj}", "{path}"],
+      "inputSchema": { "type": "object", "properties": { "proj": { "type": "string" }, "path": { "type": "string" } }, "required": ["proj", "path"] },
+      "timeout": 20
+    },
+    {
+      "name": "log_edit",
+      "description": "Append an 'edited' changelog line to a workspace's PROJECT.md (best-effort, always exits 0). Args: proj, path, summary.",
+      "command": ["bash", "tools/log_edit.sh", "{proj}", "{path}", "{summary}"],
+      "inputSchema": { "type": "object", "properties": { "proj": { "type": "string" }, "path": { "type": "string" }, "summary": { "type": "string" } }, "required": ["proj", "path", "summary"] },
+      "timeout": 20
+    },
+    {
+      "name": "add_dep",
+      "description": "Add a third-party Go module to a workspace AND ingest its API into the `deps` KB so the lifecycle/compose flows ground on its real surface. Runs go get + go mod tidy in the workspace, writes go doc -all to kb/deps/<slug>.md, re-indexes. Needs network. Args: proj (workspace), mod (import path, optionally @version). Run via /do add_dep <proj> <mod>.",
+      "command": ["bash", "tools/add_dep.sh", "{proj}", "{mod}"],
+      "inputSchema": { "type": "object", "properties": { "proj": { "type": "string" }, "mod": { "type": "string", "description": "module import path, optionally @version" } }, "required": ["proj", "mod"] },
+      "timeout": 180
+    },
+    {
+      "name": "run_app",
+      "description": "Build and RUN a workspace's main, capturing stdout/stderr/exit (the go run / run_app analog). A program that exits reports its real exit code; a blocking server is stopped after the timeout and reported as still-running. Observes behavior; the build/tests remain the oracle. Args: proj, optional secs (default 3). Run via /do run_app <proj>.",
+      "command": ["bash", "tools/run_app.sh", "{proj}", "{secs}"],
+      "inputSchema": { "type": "object", "properties": { "proj": { "type": "string" }, "secs": { "type": "string", "description": "seconds to run before stopping (default 3)" } }, "required": ["proj"] },
+      "timeout": 60
     }
   ]
 }

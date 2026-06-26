@@ -1,0 +1,9 @@
+{
+  "id": "edit_file.readproj",
+  "kind": "action",
+  "tool": "read_module",
+  "inputs": [ { "from": "$workspace", "path": ".", "as": "proj" } ],
+  "body": { "proj": "{{ proj }}" },
+  "on_success": "edit_file.generate",
+  "on_failure": "edit_file.fail"
+}

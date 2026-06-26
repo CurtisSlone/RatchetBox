@@ -1,0 +1,9 @@
+{
+  "$comment": "run: build and run a workspace's main, capturing its output. A thin wrapper over the run_app tool so it is operator-friendly with --ws: `ratchet flow . run --ws <proj> \"\"` (console: `/flow run --ws <proj>`). Running needs no model, so this is a single deterministic action node, not a generate/repair chain. proj = $workspace; the build and tests remain the oracle (see compose/module_check).",
+  "id": "run",
+  "version": "1.0.0",
+  "summary": "Build and run a workspace's main, capturing stdout/stderr/exit (a server is stopped after a few seconds).",
+  "entry": "run.exec",
+  "budgets": { "max_steps": 4, "max_total_tokens": 1000, "max_wallclock_seconds": 120 },
+  "nodes": ["run.exec", "run.done", "run.fail"]
+}

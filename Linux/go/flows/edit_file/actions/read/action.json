@@ -1,0 +1,13 @@
+{
+  "$comment": "Read the exact current contents of the target file (must exist). A missing file aborts - use add_file for new files.",
+  "id": "edit_file.read",
+  "kind": "action",
+  "tool": "read_file",
+  "inputs": [
+    { "from": "$workspace", "path": ".", "as": "proj" },
+    { "from": "path", "path": ".", "as": "path" }
+  ],
+  "body": { "proj": "{{ proj }}", "path": "{{ path }}" },
+  "on_success": "edit_file.readproj",
+  "on_failure": "edit_file.fail"
+}
