@@ -21,7 +21,7 @@ You are an AI agent working in **RatchetBox**, a collection of *ratchets* for th
 | `Windows/dotnet4-x` | `dotnet` | Windows | C# / PowerShell, in-box `csc` (C# 5) |
 | `Windows/cpp` | `cpp` | Windows | C++ with MSVC `cl` (vcvars32; STL + Win32) |
 | `Windows/template` | `CHANGE_ME` | Windows | empty skeleton to copy (PowerShell-tooled) |
-| `Linux/go` | `go` | Linux / macOS | Go, verified with `go build` (bash oracle; library package) |
+| `Linux/go` | `go` | Linux / macOS | Go, verified with `go build` / `go vet` / `go test` (bash oracles; full project lifecycle + compose) |
 
 A ratchet's platform is decided by its oracle/tools: the Windows ratchets run PowerShell + Windows
 compilers; `Linux/go` runs a bash oracle (`go build`) that works on Linux, WSL, and macOS. The engine
@@ -30,8 +30,8 @@ selects the interpreter per host OS, so a ratchet runs wherever its declared too
 Each ratchet carries its own `README.md` (drive it), `AGENTS.md` (agent orientation - start here), and
 usually `SYSTEM.md` (the operating rules / hard constraints) + `STRUCTURE.md` (the layout). **Read a
 ratchet's `SYSTEM.md` before authoring or generating in it** - it states the language/compiler limits the
-Oracle enforces (e.g. C# 5 for `dotnet`, `/std:c++17` + MSVC for `cpp`, `go build` for `go`).
-`Windows/dotnet4-x` and `Windows/cpp` also carry a `transcripts/` folder - real end-to-end build
+Oracle enforces (e.g. C# 5 for `dotnet`, `/std:c++17` + MSVC for `cpp`, `go build`/`go vet`/`go test` for `go`).
+`Windows/dotnet4-x`, `Windows/cpp`, and `Linux/go` also carry a `transcripts/` folder - real end-to-end build
 transcripts (the fastest way to see what driving the ratchet looks like).
 
 ## Discover what a ratchet can do (no engine needed - just read the files)
@@ -57,7 +57,7 @@ Point yourself at a ratchet's directory; everything you need to drive it is in p
 - **Author a tool:** a script in `tools/` declared in `tools/manifest.json` (command, inputSchema,
   optional `stdin`, timeout). The exit code is the Oracle verdict.
 - **Compose a system:** drop `.spec` files in `<ws>/specs/` and run `ratchet flow <ratchet> compose
-  --ws <project> ""`. The `Windows/dotnet4-x` and `Windows/cpp` ratchets implement it; `Windows/template`
+  --ws <project> ""`. The `Windows/dotnet4-x`, `Windows/cpp`, and `Linux/go` ratchets implement it; `Windows/template`
   ships it as stubs.
 - **Knowledge:** one topic per markdown file under `kb/<lib>/`; `ratchet index <ratchet>\kb` builds the
   manifest. Register libraries in `ratchet.json` `knowledgeBases[]`.

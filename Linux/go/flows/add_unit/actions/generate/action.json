@@ -1,5 +1,5 @@
 {
-  "$comment": "Generate ONE Go unit, grounded on its spec, the existing module API, the module state, and (plan-routing-lite) a stdlib + a patterns hit keyed on the spec. The unit goes to {{ path }} in package main at the module root.",
+  "$comment": "Generate ONE Go unit, grounded on its spec, the existing module API (with import paths), the module state, and KB hits (stdlib, patterns, pitfalls, guidelines, deps) keyed on the spec. The unit's package is derived from {{ path }}: root -> package main; <dir>/x.go -> package <dir>.",
   "id": "add_unit.generate",
   "kind": "generate",
   "prompt": "./prompt.md",
@@ -10,6 +10,8 @@
     { "from": "path", "path": ".", "as": "path" },
     { "search": "stdlib", "query": "{{ spec }}", "k": 1, "as": "stdlib_refs", "max_chars": 2500 },
     { "search": "patterns", "query": "{{ spec }}", "k": 1, "as": "pattern_refs", "max_chars": 2500 },
+    { "search": "pitfalls", "query": "{{ spec }}", "k": 1, "as": "pitfall_refs", "max_chars": 2000 },
+    { "search": "guidelines", "query": "{{ spec }}", "k": 1, "as": "guideline_refs", "max_chars": 2000 },
     { "search": "deps", "query": "{{ spec }}", "k": 1, "as": "dep_refs", "max_chars": 2500 }
   ],
   "on_success": "add_unit.build",

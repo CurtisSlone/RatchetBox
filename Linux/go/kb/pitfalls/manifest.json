@@ -3,6 +3,22 @@
   "name": "pitfalls",
   "entries": [
     {
+      "id": "atomic-int64-alignment",
+      "title": "Pitfall: 64-bit atomic field alignment",
+      "path": "atomic-int64-alignment.md",
+      "summary": "`sync/atomic`'s 64-bit ops (`AddInt64`, `LoadInt64`, ...) require their operand to be 64-bit aligned.",
+      "keywords": [
+        "atomic",
+        "field",
+        "int64",
+        "processed",
+        "dispatcher",
+        "alignment",
+        "first",
+        "struct"
+      ]
+    },
+    {
       "id": "channel-deadlock",
       "title": "Pitfall: channel deadlocks and leaks",
       "path": "channel-deadlock.md",

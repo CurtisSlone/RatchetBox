@@ -16,7 +16,8 @@
             "name": { "type": "string" },
             "role": { "type": "string", "enum": ["data", "interface", "component", "behavior", "gui", "test"] },
             "dependsOn": { "type": "array", "items": { "type": "string" } },
-            "spec": { "type": "string", "description": "the source .spec filename" }
+            "spec": { "type": "string", "description": "the source .spec filename" },
+            "pkg": { "type": "string", "description": "subdirectory/package for this unit (copy the spec's `package:` line), or empty for the root main package" }
           },
           "required": ["name", "role", "dependsOn", "spec"]
         }

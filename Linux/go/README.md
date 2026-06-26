@@ -68,6 +68,15 @@ the fastest way to see what driving the ratchet looks like.
     plan, the per-unit generated code, and `go build ./...` + `go test ./...` passing.
   - [`transcripts/pulsehook-run.md`](transcripts/pulsehook-run.md) - the operator-console session (slash
     commands) running it, plus the live `curl` latency numbers.
+- **`workspaces/pulsehook2/`** - the same webhook server, REBUILT from hardened specs after a code
+  review of the first one. Shows the review -> KB -> better-code loop: the review's four findings became
+  KB entries (`production-http-server` pattern, `atomic-int64-alignment` pitfall) and the rebuild is
+  born with `atomic.Int64`, `http.MaxBytesReader`, `http.Server` timeouts, and graceful shutdown.
+  [`transcripts/pulsehook2-hardened.md`](transcripts/pulsehook2-hardened.md) - the before/after diffs.
+- **`workspaces/greetmod/`** - a multi-PACKAGE module (a `greeter/` sub-package imported by the root
+  `main.go`), proving the ratchet scaffolds a real directory layout from specs (a spec declares
+  `package:`), not just a flat `package main`.
+  [`transcripts/greetmod-multipackage.md`](transcripts/greetmod-multipackage.md).
 - **`workspaces/ledger/`** - a goroutine-safe counter module (compose) later extended with `add_file`
   and `edit_file`. Its compose run (specs -> plan -> per-unit generation -> whole-module test) is
   Part B of [`transcripts/phase2-grounded-and-compose.md`](transcripts/phase2-grounded-and-compose.md).

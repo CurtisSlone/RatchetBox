@@ -3,6 +3,22 @@
   "name": "patterns",
   "entries": [
     {
+      "id": "algo_production_http_server",
+      "title": "Production HTTP server (Go pattern)",
+      "path": "algo_production_http_server.md",
+      "summary": "A network-facing `net/http` server should not use bare `http.ListenAndServe`. Use an explicit",
+      "keywords": [
+        "http",
+        "body",
+        "server",
+        "stop",
+        "time",
+        "second",
+        "signal",
+        "context"
+      ]
+    },
+    {
       "id": "algo_two_heap_streaming_median",
       "title": "Two-heap streaming median (Go algorithm pattern)",
       "path": "algo_two_heap_streaming_median.md",
