@@ -1,0 +1,1 @@
+{ "id": "explain.fail", "kind": "exit", "outcome": "aborted: the model did not return an answer" }

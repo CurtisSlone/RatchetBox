@@ -125,6 +125,22 @@
       "command": ["bash", "tools/run_app.sh", "{proj}", "{secs}"],
       "inputSchema": { "type": "object", "properties": { "proj": { "type": "string" }, "secs": { "type": "string", "description": "seconds to run before stopping (default 3)" } }, "required": ["proj"] },
       "timeout": 60
+    },
+    {
+      "name": "spec_check",
+      "description": "Spec oracle: validate that marker-separated .spec drafts (on stdin) are well-formed - each needs a name:, a valid role: (data/interface/component/behavior/gui/test), and at least one of api:/behavior:/intent:. Exit 0 iff all valid. No side effects. Run via /do spec_check.",
+      "command": ["bash", "tools/spec_check.sh"],
+      "inputSchema": { "type": "object", "properties": { "code": { "type": "string", "description": "marker-separated .spec drafts" } }, "required": ["code"] },
+      "stdin": "code",
+      "timeout": 20
+    },
+    {
+      "name": "write_specs",
+      "description": "Validate (via spec_check) marker-separated .spec drafts (on stdin) and, if all well-formed, write each into <proj>/specs/ (bootstrapping go.mod + specs/ if absent). Atomic: writes nothing if any spec is invalid. Args: proj; specs on stdin.",
+      "command": ["bash", "tools/write_specs.sh", "{proj}"],
+      "inputSchema": { "type": "object", "properties": { "proj": { "type": "string" }, "code": { "type": "string", "description": "marker-separated .spec drafts" } }, "required": ["proj", "code"] },
+      "stdin": "code",
+      "timeout": 30
     }
   ]
 }

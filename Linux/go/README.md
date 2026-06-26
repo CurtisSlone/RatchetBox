@@ -35,6 +35,13 @@ query skips it, so generation is grounded only on what the task needs - a heap t
   Verifies *behavior*, not just compilation - the headline of this ratchet. Emits two marker-separated
   files (`// === solution.go ===` / `// === solution_test.go ===`) the oracle splits and runs.
 
+**Spec authoring** (the front-end to compose):
+- **`spec`** - `ratchet flow . spec --ws <proj> "<description>"` (after `new_module <proj>`): drafts
+  well-formed `.spec` file(s) from a free-text description - one unit or a whole system (decomposed).
+  Validated by the `spec_check` oracle and written into `workspaces/<proj>/specs/`. Grounded on
+  patterns/pitfalls so the specs name the right concerns (e.g. it adds `atomic.Int64`, `http.Server`
+  timeouts) before any code exists. Review the specs, then `compose`.
+
 **Project lifecycle** (a persistent module under `workspaces/<proj>` you keep and grow):
 - `/do new_module <proj>` - scaffold `workspaces/<proj>` (go.mod, PROJECT.md, specs/). All units live
   in one `package main` at the module root.
@@ -48,6 +55,13 @@ query skips it, so generation is grounded only on what the task needs - a heap t
 - **`compose`** - `ratchet flow . compose --ws <proj> ""`: read `.spec` files in
   `workspaces/<proj>/specs`, plan the build order, generate each unit in dependency order against the
   module so far (`add_unit` per unit), then `go build ./...` + `go test ./...` the whole thing.
+
+**Reference / learning** (grounded Q&A, no code generation, no oracle):
+- **`explain`** - `ratchet flow . explain "<question>"` (or `/route "explain ..."`): answers a Go
+  question in **prose**, grounded in the KB (Effective Go / Code Review Comments, stdlib, patterns,
+  pitfalls). Use this for "how does X work / what's idiomatic" - unlike `go`/`test` it does not emit a
+  `package solution` file. (Plain chat and `/search` go through the code-biased seat; `explain` is the
+  conversational path.)
 
 **Run** (observe a built program; deterministic, no model):
 - `/do run_app <proj>` (or **`run`** flow: `/ws switch <proj>` then `/flow run`, or

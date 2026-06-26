@@ -1,0 +1,1 @@
+{ "id": "spec.fail", "kind": "exit", "outcome": "aborted: could not draft well-formed specs after one repair" }

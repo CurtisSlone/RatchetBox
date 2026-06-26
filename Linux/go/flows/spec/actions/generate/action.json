@@ -1,0 +1,14 @@
+{
+  "$comment": "Draft the spec(s) from the description, grounded on patterns/guidelines/pitfalls so the specs name the right concerns. Output is marker-separated .spec blocks the write_specs oracle validates + writes.",
+  "id": "spec.generate",
+  "kind": "generate",
+  "prompt": "./prompt.md",
+  "inputs": [
+    { "from": "$input", "path": ".", "as": "desc" },
+    { "search": "patterns", "query": "{{ desc }}", "k": 2, "as": "pattern_refs", "max_chars": 3000 },
+    { "search": "guidelines", "query": "{{ desc }}", "k": 1, "as": "guideline_refs", "max_chars": 2000 },
+    { "search": "pitfalls", "query": "{{ desc }}", "k": 1, "as": "pitfall_refs", "max_chars": 2000 }
+  ],
+  "on_success": "spec.write",
+  "on_failure": "spec.fail"
+}

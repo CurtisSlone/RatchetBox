@@ -1,0 +1,12 @@
+{
+  "id": "spec.rewrite",
+  "kind": "action",
+  "tool": "write_specs",
+  "inputs": [
+    { "from": "$workspace", "path": ".", "as": "proj" },
+    { "from": "spec.fix", "path": ".", "as": "code" }
+  ],
+  "body": { "proj": "{{ proj }}", "code": "{{ code }}" },
+  "on_success": "spec.done",
+  "on_failure": "spec.fail"
+}

@@ -42,6 +42,18 @@
       "summary": "Build and run a workspace's main, capturing stdout/stderr/exit (a server is stopped after a few seconds).",
       "entry": "run.exec",
       "nodes": 3
+    },
+    {
+      "id": "explain",
+      "summary": "Answer a Go question in prose, grounded in the knowledge base (stdlib, Effective Go / Code Review Comments, patterns, pitfalls). A reference/learning path - no code generation.",
+      "entry": "explain.answer",
+      "nodes": 3
+    },
+    {
+      "id": "spec",
+      "summary": "Draft well-formed Go build spec(s) from a description (one unit or a whole system), validated and written into a workspace - the front-end to compose.",
+      "entry": "spec.generate",
+      "nodes": 6
     }
   ]
 }

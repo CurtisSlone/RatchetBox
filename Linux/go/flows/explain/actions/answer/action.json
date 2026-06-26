@@ -1,0 +1,16 @@
+{
+  "$comment": "Generate a prose answer grounded on the KB. The question is searched against each library (k=1, capped); empty hits render empty. No output_schema -> free prose. No oracle -> success goes straight to done.",
+  "id": "explain.answer",
+  "kind": "generate",
+  "prompt": "./prompt.md",
+  "inputs": [
+    { "from": "$input", "path": ".", "as": "question" },
+    { "search": "guidelines", "query": "{{ question }}", "k": 2, "as": "guideline_refs", "max_chars": 3000 },
+    { "search": "stdlib", "query": "{{ question }}", "k": 1, "as": "stdlib_refs", "max_chars": 2500 },
+    { "search": "patterns", "query": "{{ question }}", "k": 1, "as": "pattern_refs", "max_chars": 2500 },
+    { "search": "pitfalls", "query": "{{ question }}", "k": 1, "as": "pitfall_refs", "max_chars": 2000 },
+    { "search": "kb", "query": "{{ question }}", "k": 1, "as": "idiom_refs", "max_chars": 1500 }
+  ],
+  "on_success": "explain.done",
+  "on_failure": "explain.fail"
+}

@@ -1,0 +1,9 @@
+{
+  "$comment": "spec: draft well-formed .spec file(s) from a free-text description - the front-end to compose. One request becomes one spec (a single unit) or several (a system, decomposed into units). generate -> write -> done | fix -> rewrite -> done | fail. The oracle is well-formedness: write_specs validates via spec_check and writes atomically (nothing written if any spec is malformed), repairing once. Grounded on patterns/guidelines/pitfalls so the drafted specs name the right concerns. Run: `ratchet flow . spec --ws <proj> \"<description>\"` then review the specs and `compose`.",
+  "id": "spec",
+  "version": "1.0.0",
+  "summary": "Draft well-formed Go build spec(s) from a description (one unit or a whole system), validated and written into a workspace - the front-end to compose.",
+  "entry": "spec.generate",
+  "budgets": { "max_steps": 10, "max_total_tokens": 18000, "max_wallclock_seconds": 600 },
+  "nodes": ["spec.generate", "spec.write", "spec.fix", "spec.rewrite", "spec.done", "spec.fail"]
+}

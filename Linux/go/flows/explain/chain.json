@@ -1,0 +1,9 @@
+{
+  "$comment": "explain: a grounded Q&A flow (no oracle - an explanation has nothing to compile/verify). It searches the knowledge libraries (guidelines, stdlib, patterns, pitfalls, idioms) for the question and writes a concise PROSE answer, citing the authoritative Go docs. This is the conversational/reference path - unlike `go`/`test`, it does NOT emit a `package solution` file. Run: `/flow explain \"<question>\"` (or `/route \"explain ...\"`).",
+  "id": "explain",
+  "version": "1.0.0",
+  "summary": "Answer a Go question in prose, grounded in the knowledge base (stdlib, Effective Go / Code Review Comments, patterns, pitfalls). A reference/learning path - no code generation.",
+  "entry": "explain.answer",
+  "budgets": { "max_steps": 4, "max_total_tokens": 12000, "max_wallclock_seconds": 300 },
+  "nodes": ["explain.answer", "explain.done", "explain.fail"]
+}

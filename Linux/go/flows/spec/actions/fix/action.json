@@ -1,0 +1,13 @@
+{
+  "$comment": "Repair: redraft the spec(s) given the well-formedness errors + the previous attempt. Bounded - one fix, then rewrite.",
+  "id": "spec.fix",
+  "kind": "generate",
+  "prompt": "./prompt.md",
+  "inputs": [
+    { "from": "$input", "path": ".", "as": "desc" },
+    { "from": "spec.generate", "path": ".", "as": "prev", "max_chars": 5000 },
+    { "from": "spec.write", "path": ".", "as": "errors", "max_chars": 2000 }
+  ],
+  "on_success": "spec.rewrite",
+  "on_failure": "spec.fail"
+}
