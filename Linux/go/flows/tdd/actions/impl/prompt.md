@@ -2,9 +2,9 @@ Implement the module: replace the stub `panic("TODO")` bodies with real code so 
 (go vet + go test -race + the fuzz target). Do NOT change the signatures the test calls.
 
 Rules:
-- Output the SAME files as the stub (same `=== <path>.go ===` paths and the SAME `package` line), now with
-  full implementations. Keep every exported signature identical. You may add unexported helpers/fields.
-  Declare each type/function EXACTLY once (do not re-split a merged type across files).
+- Output the SAME files as the stub (same `=== <path>.go ===` paths, all at the module ROOT, all
+  `package main`), now with full implementations. ONE package, no subdirectories, no imports of your own
+  code. Keep every exported signature identical; declare each type/function EXACTLY once.
 - The test is the contract - satisfy exactly what it asserts, including the property/fuzz invariant and any
   concurrent (-race) expectations. Use the reference material for correct concurrency + to avoid traps.
 - Standard library only. Include every import; remove unused ones.
@@ -19,8 +19,9 @@ Rules:
 ## Stub (the signatures to keep)
 {{ stub }}
 
-## Reference (concurrency / pitfalls / stdlib)
+## Reference (concurrency / cache / pitfalls / stdlib)
 {{ conc_refs }}
+{{ cache_refs }}
 {{ pitfall_refs }}
 {{ stdlib_refs }}
 

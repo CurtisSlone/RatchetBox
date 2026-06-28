@@ -2,11 +2,15 @@ Author the Go TEST file(s) for this module, from the specs' `behavior`. The impl
 STUB (every body panics), so a correct test MUST compile and MUST FAIL right now - that is the red gate.
 
 Rules:
-- PACKAGE: write the test in the SAME package and directory as the code it tests - read the package from
-  the stub below. A stub in `package pool` under `pool/` -> `pool/<name>_test.go` with `package pool`; a
-  stub in `package main` at the root -> `<name>_test.go` at the root with `package main`. NEVER import the
-  module's own package by path - the test is IN that package.
-- Call the EXACT signatures shown in the stub below.
+- ONE test file at the module ROOT, named `<name>_test.go`, `package main` (the same single package as the
+  stub). No subdirectories, no importing the module's own code - the test is IN package main with everything
+  else. Call the EXACT signatures shown in the stub below.
+- The test file contains ONLY `Test*`/`Fuzz*` functions and helpers. Do NOT declare `func main` - it
+  already exists in main.go (declaring it again is a redeclaration error).
+- A `Fuzz` target's `f.Fuzz`/`f.Add` arguments must be FUZZABLE PRIMITIVES ONLY: string, bool, int/int8/
+  int16/int32/int64, uint/uintN, float32/float64, []byte. Do NOT use other types (e.g. `time.Duration`) as
+  fuzz args - instead fuzz an int64 (e.g. milliseconds) and convert inside the body:
+  `ttl := time.Duration(ms) * time.Millisecond`.
 - Cover the core behavior with example tests (table-driven where natural). Assert real properties of the
   result, not just "no panic".
 - Include AT LEAST ONE property/fuzz target: a `func FuzzXxx(f *testing.F)` that calls `f.Fuzz(func(t *testing.T, ...) {...})`

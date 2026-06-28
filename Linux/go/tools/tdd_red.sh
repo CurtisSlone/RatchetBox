@@ -31,6 +31,8 @@ flush(); print(" ".join(paths))
 ')"
 [ -z "$written" ] && { echo "no test files parsed (need === path.go === markers)"; exit 1; }
 echo "wrote test: $written"
+# Strip unused imports the model left in the test (goimports-lite) before the compile check.
+for p in $written; do bash tools/prune_imports.sh "$root/$p" >/dev/null 2>&1 || true; done
 cd "$root" || exit 1
 
 # 1. must COMPILE (vet type-checks without requiring a linked binary)

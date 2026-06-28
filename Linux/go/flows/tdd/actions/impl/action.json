@@ -9,6 +9,7 @@
     { "from": "tdd.fuzz", "path": ".", "as": "fuzz_fb", "max_chars": 2000 },
     { "from": "tdd.harden", "path": ".", "as": "harden_fb", "max_chars": 2000 },
     { "search": "concurrency", "query": "{{ specs }}", "k": 1, "as": "conc_refs", "max_chars": 2500 },
+    { "search": "cache", "query": "{{ specs }}", "k": 1, "as": "cache_refs", "max_chars": 2500 },
     { "search": "pitfalls", "query": "{{ specs }}", "k": 1, "as": "pitfall_refs", "max_chars": 2000 },
     { "search": "stdlib", "query": "{{ specs }}", "k": 1, "as": "stdlib_refs", "max_chars": 2000 }
   ],

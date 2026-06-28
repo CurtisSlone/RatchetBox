@@ -19,3 +19,6 @@ desktop.ini
 cqrs-go-ref.md
 # scratch build workspaces (disposable)
 Linux/go/workspaces/
+
+# local-only findings (not pushed)
+/Findings.md

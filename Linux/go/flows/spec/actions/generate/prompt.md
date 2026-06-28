@@ -1,9 +1,11 @@
 Draft Go build SPEC(S) for the request below. A spec is a short, structured prompt that the `compose`
 flow later turns into code - you are writing the SPEC, not the code. Output ONLY marker blocks.
 
-If the request is a single function/type, emit ONE spec. If it is a system (several pieces), DECOMPOSE
-it into multiple specs - one per unit: the data types, the components, the entry point, and a test for
-the core behavior. Build order does not matter here (compose plans it).
+If the request is a single function/type, emit ONE spec. If it is a system, DECOMPOSE it into multiple
+specs - ONE spec per distinct TYPE or component, plus the entry point and a test for the core behavior.
+Keep a type's definition AND its methods/behavior in the SAME spec - NEVER split one type across a
+separate "data" spec and a "component" spec (that produces duplicate declarations downstream). Build order
+does not matter here (compose plans it).
 
 Emit each unit as a marker block in EXACTLY this shape:
 

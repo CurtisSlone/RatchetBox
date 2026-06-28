@@ -3,10 +3,11 @@ compiler checks the shapes are coherent before any behavior exists.
 
 Rules:
 - IGNORE any `role: test` spec - tests are authored in a later phase, NOT here. Emit no `_test.go` file.
-- PACKAGE & PATH: each spec declares its package in its `constraints` line (`package: <pkg>`, default
-  `main`). A unit in package `main` -> file `<name>.go` at the module ROOT with `package main`. A unit in
-  package `<pkg>` -> file `<pkg>/<name>.go` with `package <pkg>`. Group every unit of the same package in
-  that package's directory.
+- ONE PACKAGE, ONE FILE, AT THE ROOT. Put EVERY non-test type and function in a SINGLE file at the module
+  root, named for the domain (e.g. `ttlcache.go`), starting with `package main`. There are NO
+  subdirectories and NO other packages - regardless of how the types are named. All types live together in
+  that one file, so they reference each other directly (no imports of your own code). This single-package
+  rule is mandatory: a sub-package the types can't all see breaks the build.
 - Each NON-test unit's `api` becomes a real type and/or function declaration with the EXACT signatures.
   Every function/method body is exactly `panic("TODO")`. No logic, no fields beyond what the api names.
 - ONE declaration per symbol. Every type/function is declared EXACTLY once. If several specs describe the

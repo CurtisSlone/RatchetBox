@@ -42,6 +42,9 @@ print(" ".join(paths))
 [ -z "$written" ] && { echo "no files parsed from the payload (need === path === markers)"; exit 1; }
 echo "staged: $written"
 
+# Strip unused imports the model left behind (goimports-lite) from the just-staged files before verifying.
+for p in $written; do bash tools/prune_imports.sh "$root/$p" >/dev/null 2>&1 || true; done
+
 RACE=""
 if [ "$(go env CGO_ENABLED 2>/dev/null)" != "0" ] && { command -v gcc >/dev/null 2>&1 || command -v clang >/dev/null 2>&1 || command -v cc >/dev/null 2>&1; }; then RACE="-race"; fi
 v="$(cd "$root" && GOFLAGS=-mod=mod go vet ./... 2>&1)"; vs=$?

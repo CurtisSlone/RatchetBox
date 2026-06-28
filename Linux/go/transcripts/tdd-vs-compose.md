@@ -58,10 +58,78 @@ The repair caps (fix 4) worked - no more spinning to timeout; the flow fails fas
    which is what makes both compose and tdd collide. A sharper `spec` decomposition (one unit per type)
    would help both flows.
 
+## Result 3: both fixes applied -> the worker pool CLIMBS THE LADDER
+
+Two complementary fixes, applied on main (different failure classes):
+- **Fix A - `prune_imports` (goimports-lite, Go-specific):** removes unused imports deterministically;
+  wired into `stage_files` (so it protects stub-write, impl-green, AND compose/coedit) and `tdd_red`.
+- **Fix B - sharper `spec` decomposition:** the spec prompt now keeps a type's definition + methods in
+  ONE spec. Confirmed: the worker pool re-specced to 2 units (`Pool` component + test), not 3.
+
+Re-running `tdd` on the clean specs:
+
+```text
+reset -> read -> stub -> stubwrite      # PASS (no unused import, no redeclaration)
+test -> red                             # PASS first try (compiles vs stub, fails)
+impl -> green (x4 via implcap)           # impl cycle ground through the hard part (a correct concurrent pool)
+```
+
+The impl reached GREEN; verified independently: **gofmt clean, go vet clean, staticcheck clean, go build
+ok, `go test -race` PASS, and `go_fuzz` (FuzzPoolSubmit, 6s) CLEAN** - a race- and fuzz-clean bounded
+worker pool (NewPool/Submit/Close/Results, no goroutine leak) with a red-verified test suite, generated
+test-first from a one-line spec. (The flow run itself was cut by a 590s shell timeout right after green,
+before fuzz/harden flushed; the artifact is complete.)
+
+The fixes are confirmed COMPLEMENTARY: B cleared the stub redeclaration, A cleared the unused-import wall,
+and together they moved the blocker from "stub won't compile" to "impl logic" - which the impl cycle then
+solved. The repair caps (fix 4) bounded the impl cycle cleanly.
+
+## Result 4: concurrent TTL cache (the original cacheproxy nemesis) - the model's frontier, ladder holds
+
+Pushed TDD onto the hardest target: a sharded TTL cache (Set/Get + expiry), the class where the
+expiry-under-RLock race and mutate-under-RLock bug live - the bug the original cacheproxy SHIPPED. The
+spec decomposed into 3 interdependent types (TTLCache -> TTLCacheShard -> TTLCacheEntry). Two runs:
+
+- Run A: the stub invented a `cache` sub-package; `main.go` imported it as `"cache"` (not the full
+  module path) -> impl never compiled -> impl cap exhausted (4 tries) -> clean fail, rolled back.
+- Run B (after "prefer single root package" stub rule): the model STILL made the sub-package, and the
+  RED cap exhausted - the test node could not produce a test COHERENT with the 3-type stub: it wrote a
+  stray `main.go` referencing a `_test.go` func (`undefined: TestTTLCacheConcurrent`), and used struct
+  fields the stub did not declare (`unknown field value`). The red gate rejected every attempt.
+
+The decisive point: across BOTH runs the model never produced a coherent stub+test+impl for the 3-type
+cache - and the ladder + caps **rejected every bad attempt and shipped nothing**. That is strictly better
+than the original cacheproxy outcome, which shipped the expiry race. We never even reached the -race/fuzz
+judges because the model failed earlier (compile/coherence), but the protection held: no broken cache.
+
+### Structural fixes vs the cache - what each wall taught us
+
+The diagnostic (run `compose` on the same specs) showed the units SCATTERED across packages: some at the
+root in `package main`, one in a `cache/` sub-package -> cross-references undefined. So the wall was not
+"per-unit vs whole-module" - it was INCONSISTENT PACKAGE PLACEMENT. We then removed the choice
+structurally, wall by wall (no bigger model):
+
+| wall | structural fix | result |
+|---|---|---|
+| units scatter across packages | stub/test/impl: ONE package main, ONE file, at the root | **coherence cleared** - the 3-type stub compiles |
+| test declares `func main` / uses `time.Duration` as a fuzz arg | test-prompt rules (no main; fuzzable primitives only) | partially obeyed |
+| test has a different trivial compile bug each try (`testing.F{TB:}`, redeclared main, unused var) | (none reliably) | RED cap exhausts |
+
+The single-package fix WORKED - it cleared the structural coherence wall the cache kept hitting. What
+remains is NOT structure: the small model cannot reliably write a clean-COMPILING complex test
+(concurrent + fuzz + 3 types) - it makes a different trivial error each attempt, whack-a-mole, and the red
+gate rejects each. That is raw code-gen reliability, where prompt/structure has diminishing returns - the
+"bigger model OR much more structure" frontier. Stopped here.
+
 ## Net
-TDD beats compose on assurance for single-package units (counter): a red-verified test + a fuzz target +
-harden-clean, vs compose's test-with-impl + build gate. For multi-unit/sub-package systems both hit the
-local model's code-gen ceiling; the tdd flow's oracles correctly reject every bad attempt and it now
-fails fast. The concrete unblock is an **import-prune tool** (build one, or install goimports) plus a
-**less aggressive spec decomposition**. Stopped iterating here - past this point it is model capability,
-not flow design.
+TDD's assurance scales with type-count, and so does the model's difficulty:
+- 1 type (counter): full ladder green, race + fuzz clean. TDD > compose.
+- 1 concurrency-heavy type (worker pool, after fixes A+B): full ladder, race + fuzz + lint clean; compose
+  still fails the same spec (`Pool redeclared`).
+- 3 interdependent types (TTL cache): beyond the local model's coherence; the ladder + caps fail clean
+  and ship nothing - the protection the original cacheproxy lacked.
+
+Robustness banked while pushing: `prune_imports` (helps compose + coedit too), sharper spec decomposition,
+single-root-package default, and the repair caps (proven: they bounded the red AND impl cycles cleanly).
+Open: catalog-route the impl grounding; a coherence aid for multi-type stubs (e.g. regenerate stub+test
+together on a field mismatch, since the red repair currently re-does only the test).
