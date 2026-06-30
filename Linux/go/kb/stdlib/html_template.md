@@ -763,3 +763,46 @@ type URL string
     Use of this type presents a security risk: the encapsulated content should
     come from a trusted source, as it will be included verbatim in the template
     output.
+
+## idiomatic usage
+
+Parse and execute an HTML template, with automatic context-aware escaping that prevents code injection (XSS). Keywords: template New Parse Execute ExecuteTemplate Must autoescaping XSS injection range else render HTML web page data binding sanitize.
+
+```go
+import (
+	"html/template"
+	"log"
+	"os"
+)
+
+func Example() {
+	const tpl = `<!DOCTYPE html>
+<html>
+	<head><title>{{.Title}}</title></head>
+	<body>
+		{{range .Items}}<div>{{ . }}</div>{{else}}<div><strong>no rows</strong></div>{{end}}
+	</body>
+</html>`
+
+	t, err := template.New("webpage").Parse(tpl)
+	if err != nil {
+		log.Fatal(err)
+	}
+	data := struct {
+		Title string
+		Items []string
+	}{Title: "My page", Items: []string{"My photos", "My blog"}}
+
+	if err := t.Execute(os.Stdout, data); err != nil {
+		log.Fatal(err)
+	}
+}
+
+// Untrusted input is auto-escaped to neutralize injected markup.
+func Example_autoescaping() {
+	t := template.Must(template.New("foo").Parse(`{{define "T"}}Hello, {{.}}!{{end}}`))
+	_ = t.ExecuteTemplate(os.Stdout, "T", "<script>alert('you have been pwned')</script>")
+	// Output:
+	// Hello, &lt;script&gt;alert(&#39;you have been pwned&#39;)&lt;/script&gt;!
+}
+```

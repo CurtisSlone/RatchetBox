@@ -301,3 +301,32 @@ func (v Values) Has(key string) bool
 
 func (v Values) Set(key, value string)
     Set sets the key to value. It replaces any existing values.
+
+## idiomatic usage
+
+Parse a URL and edit its query string, or build and encode query parameters with url.Values. Keywords: url Parse URL Query Values Set Add Get Encode RawQuery ParseQuery QueryEscape PathEscape ResolveReference query string parameters build edit encode decode.
+
+```go
+// Parse a URL and modify its query and host.
+u, err := url.Parse("http://bing.com/search?q=dotnet")
+if err != nil {
+	log.Fatal(err)
+}
+u.Scheme = "https"
+u.Host = "google.com"
+q := u.Query()
+q.Set("q", "golang")
+u.RawQuery = q.Encode()
+fmt.Println(u) // https://google.com/search?q=golang
+```
+
+```go
+// Build and encode query parameters.
+v := url.Values{}
+v.Set("name", "Ava")
+v.Add("friend", "Jess")
+v.Add("friend", "Sarah")
+fmt.Println(v.Encode()) // friend=Jess&friend=Sarah&name=Ava
+fmt.Println(v.Get("name"))   // Ava
+fmt.Println(v["friend"])     // [Jess Sarah]
+```

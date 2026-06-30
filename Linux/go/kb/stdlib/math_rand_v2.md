@@ -271,3 +271,29 @@ func NewZipf(r *Rand, s float64, v float64, imax uint64) *Zipf
 func (z *Zipf) Uint64() uint64
     Uint64 returns a value drawn from the Zipf distribution described by the
     Zipf object.
+
+## idiomatic usage
+
+The v2 random API: generic rand.N, IntN/Int32N/Int64N bounds, Float64, Perm, Shuffle, and explicit PCG/ChaCha8 sources via rand.New. Keywords: rand.IntN rand.N rand.Int32N rand.Int64N rand.Float64 rand.Perm rand.Shuffle rand.New rand.NewPCG random v2 generic random duration random number generator.
+
+```go
+import (
+	"fmt"
+	"math/rand/v2"
+	"time"
+)
+
+func main() {
+	// Random index into a slice (IntN replaces Intn).
+	answers := []string{"yes", "no", "maybe"}
+	fmt.Println(answers[rand.IntN(len(answers))])
+
+	// Generic N works for any integer or duration type.
+	fmt.Println(rand.N(int64(100)))
+	time.Sleep(rand.N(100 * time.Millisecond))
+
+	// Explicit seeded PCG source for reproducible output.
+	r := rand.New(rand.NewPCG(1, 2))
+	fmt.Println(r.Float64(), r.IntN(10), r.Perm(5))
+}
+```

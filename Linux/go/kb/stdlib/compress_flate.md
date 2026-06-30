@@ -144,3 +144,43 @@ func (w *Writer) Reset(dst io.Writer)
 func (w *Writer) Write(data []byte) (n int, err error)
     Write writes data to w, which will eventually write the compressed form of
     data to its underlying writer.
+
+## idiomatic usage
+
+Compress with flate.NewWriter (io.Copy then Close to flush the DEFLATE stream) and decompress with flate.NewReader; use NewWriterDict/NewReaderDict to share a preset dictionary for better ratios. Keywords: flate DEFLATE NewWriter NewReader NewWriterDict NewReaderDict Close Flush Reset Resetter DefaultCompression BestCompression BestSpeed compress decompress deflate inflate dictionary stream io.Copy.
+
+```go
+import (
+	"bytes"
+	"compress/flate"
+	"io"
+	"log"
+	"os"
+	"strings"
+)
+
+func roundTrip() {
+	var b bytes.Buffer
+
+	// Compress.
+	zw, err := flate.NewWriter(&b, flate.DefaultCompression)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if _, err := io.Copy(zw, strings.NewReader("the data to compress")); err != nil {
+		log.Fatal(err)
+	}
+	if err := zw.Close(); err != nil { // Close flushes the stream.
+		log.Fatal(err)
+	}
+
+	// Decompress.
+	zr := flate.NewReader(&b)
+	if _, err := io.Copy(os.Stdout, zr); err != nil {
+		log.Fatal(err)
+	}
+	if err := zr.Close(); err != nil {
+		log.Fatal(err)
+	}
+}
+```

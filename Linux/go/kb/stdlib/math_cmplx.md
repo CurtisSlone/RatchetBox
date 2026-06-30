@@ -100,3 +100,19 @@ func Tan(x complex128) complex128
 
 func Tanh(x complex128) complex128
     Tanh returns the hyperbolic tangent of x.
+
+## idiomatic usage
+
+Compute the magnitude, exponential, and polar form of complex128 values. Keywords: cmplx.Abs cmplx.Exp cmplx.Polar complex128 magnitude modulus absolute value polar coordinates radius angle theta Euler identity.
+
+```go
+// Magnitude (absolute value) of a complex number.
+fmt.Printf("%.1f", cmplx.Abs(3+4i)) // 5.0
+
+// Complex exponential (Euler's identity: e^(i*pi) + 1 == 0).
+fmt.Printf("%.1f", cmplx.Exp(1i*math.Pi)+1) // (0.0+0.0i)
+
+// Convert to polar form (radius and angle).
+r, theta := cmplx.Polar(2i)
+fmt.Printf("r: %.1f, θ: %.1f*π", r, theta/math.Pi) // r: 2.0, θ: 0.5*π
+```

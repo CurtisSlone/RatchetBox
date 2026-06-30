@@ -214,3 +214,41 @@ func (w StreamWriter) Close() error
     if the Writer is also an io.Closer. Otherwise it returns nil.
 
 func (w StreamWriter) Write(src []byte) (n int, err error)
+
+## idiomatic usage
+
+Wrap a block cipher (e.g. aes.NewCipher) in an AEAD with cipher.NewGCM and use Seal/Open with a fresh random nonce for authenticated encryption; for stream/CTR mode use cipher.NewCTR + XORKeyStream (same call encrypts and decrypts). Keywords: cipher.NewGCM Seal Open NonceSize aes.NewCipher cipher.NewCTR NewCBCEncrypter NewCBCDecrypter NewCFBEncrypter XORKeyStream CryptBlocks AEAD authenticated encryption decrypt nonce IV rand.Reader.
+
+```go
+import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"io"
+)
+
+// AES-GCM authenticated encryption.
+block, err := aes.NewCipher(key) // key is 16 or 32 bytes
+if err != nil {
+	panic(err)
+}
+aesgcm, err := cipher.NewGCM(block)
+if err != nil {
+	panic(err)
+}
+nonce := make([]byte, aesgcm.NonceSize())
+if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
+	panic(err)
+}
+ciphertext := aesgcm.Seal(nil, nonce, plaintext, nil)
+plaintext, err = aesgcm.Open(nil, nonce, ciphertext, nil)
+
+// AES-CTR stream mode (same call for encrypt and decrypt).
+ct := make([]byte, aes.BlockSize+len(plaintext))
+iv := ct[:aes.BlockSize]
+if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+	panic(err)
+}
+stream := cipher.NewCTR(block, iv)
+stream.XORKeyStream(ct[aes.BlockSize:], plaintext)
+```

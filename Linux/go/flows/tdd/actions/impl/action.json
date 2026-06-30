@@ -1,13 +1,15 @@
 {
-  "$comment": "IMPL rung (green): fill the stub bodies to make the test pass. Grounded on concurrency/pitfalls/stdlib. On a green/fuzz/harden failure the flow loops back here; the matching feedback slot carries the oracle's output (all empty on the first pass).",
+  "$comment": "IMPL rung (green): fill the stub bodies to make the test pass. Grounded on concurrency/cache/pitfalls/stdlib. On a green/fuzz/harden failure the flow loops back here; `prev_impl` is the previous failing implementation and the matching feedback slot carries the oracle's output (all empty on the first pass) - EDIT the prior impl to fix exactly what the oracle flagged, do not cold-start.",
   "id": "tdd.impl", "kind": "generate", "prompt": "./prompt.md",
   "inputs": [
     { "from": "tdd.read", "path": ".", "as": "specs" },
     { "from": "tdd.stub", "path": ".", "as": "stub", "max_chars": 4000 },
     { "from": "tdd.test", "path": ".", "as": "test", "max_chars": 4000 },
+    { "from": "tdd.impl", "path": ".", "as": "prev_impl", "max_chars": 5000 },
     { "from": "tdd.green", "path": ".", "as": "green_fb", "max_chars": 2000 },
     { "from": "tdd.fuzz", "path": ".", "as": "fuzz_fb", "max_chars": 2000 },
     { "from": "tdd.harden", "path": ".", "as": "harden_fb", "max_chars": 2000 },
+    { "search": "dsa", "query": "{{ specs }}", "k": 1, "as": "dsa_refs", "max_chars": 3000 },
     { "search": "concurrency", "query": "{{ specs }}", "k": 1, "as": "conc_refs", "max_chars": 2500 },
     { "search": "cache", "query": "{{ specs }}", "k": 1, "as": "cache_refs", "max_chars": 2500 },
     { "search": "pitfalls", "query": "{{ specs }}", "k": 1, "as": "pitfall_refs", "max_chars": 2000 },

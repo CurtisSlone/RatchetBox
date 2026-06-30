@@ -40,3 +40,26 @@ func Sum224(data []byte) [Size224]byte
 
 func Sum256(data []byte) [Size]byte
     Sum256 returns the SHA256 checksum of the data.
+
+## idiomatic usage
+
+Compute a SHA-256 digest either in one shot with sha256.Sum256, or incrementally via sha256.New and streaming data with io.Copy. Keywords: sha256 Sum256 New hash digest checksum fingerprint hash.Hash Write io.Copy streaming file hashing SHA-256.
+
+```go
+// One-shot checksum.
+sum := sha256.Sum256([]byte("hello world\n"))
+fmt.Printf("%x", sum)
+// Output: a948904f2f0f479b8f8197694b30184b0d2ed1c1cd2a1ec0fb85d299a192a447
+
+// Streaming a file into the hash.
+f, err := os.Open("file.txt")
+if err != nil {
+	log.Fatal(err)
+}
+defer f.Close()
+h := sha256.New()
+if _, err := io.Copy(h, f); err != nil {
+	log.Fatal(err)
+}
+fmt.Printf("%x", h.Sum(nil))
+```

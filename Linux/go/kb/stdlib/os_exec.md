@@ -444,3 +444,37 @@ type ExitError struct {
     An ExitError reports an unsuccessful exit by a command.
 
 func (e *ExitError) Error() string
+
+## idiomatic usage
+
+Run an external command and capture its output, pipe data through stdin/stdout, or run with a timeout via context. Keywords: exec Command CommandContext Run Output CombinedOutput Start Wait StdinPipe StdoutPipe Stdin Stdout LookPath subprocess shell run command capture output pipe environment timeout.
+
+```go
+// Capture command output.
+out, err := exec.Command("date").Output()
+if err != nil {
+	log.Fatal(err)
+}
+fmt.Printf("The date is %s\n", out)
+```
+
+```go
+// Pipe input via stdin and capture stdout.
+cmd := exec.Command("tr", "a-z", "A-Z")
+cmd.Stdin = strings.NewReader("some input")
+var out strings.Builder
+cmd.Stdout = &out
+if err := cmd.Run(); err != nil {
+	log.Fatal(err)
+}
+fmt.Printf("in all caps: %q\n", out.String())
+```
+
+```go
+// Run with a timeout using a context.
+ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+defer cancel()
+if err := exec.CommandContext(ctx, "sleep", "5").Run(); err != nil {
+	// fails after 100ms; the 5s sleep is interrupted
+}
+```

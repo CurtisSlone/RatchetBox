@@ -28,6 +28,7 @@ SEED = {
  "recipes":     "End-to-end app playbooks: unit breakdown plus the APIs/deps for a kind of program (e.g. an HTTP service).",
  "concurrency": "Concurrent Go: channel & goroutine patterns - fan-in/out, worker pool, select-timeout, context cancellation, bounded parallelism, semaphores, generators.",
  "cache":       "Concurrent in-memory cache building blocks: sharded store, reader-biased RWMutex, single-flight, timer-wheel TTL, W-TinyLFU, count-min sketch.",
+ "dsa":         "Data structures & algorithms in Go: linked lists, stacks, queues, deques, ring buffers, sets, hash tables, heaps/priority queues, trees (BST/AVL/red-black/trie/segment/Fenwick), union-find, graphs (BFS/DFS/topological-sort/Dijkstra/MST), sorting, searching, number theory, hashing/checksums, encoding (RLE/base-N/varint) - worked Go implementations + tests.",
  "cqrs":        "Event-driven / CQRS building blocks: Message, Publisher/Subscriber, Router + middleware, command/event bus, processors, marshaler.",
 }
 

@@ -285,3 +285,17 @@ type WalkFunc func(path string, info fs.FileInfo, err error) error
     Second, if a directory's Readdirnames method fails, Walk calls the
     function with path set to the directory's path, info, set to an fs.FileInfo
     describing the directory, and err set to the error from Readdirnames.
+
+## idiomatic usage
+
+Work with OS-specific file paths: extract the extension, and (commonly) join, clean, walk, and glob filesystem paths. Keywords: filepath.Ext filepath.Join filepath.Clean filepath.Base filepath.Dir filepath.Abs filepath.Walk filepath.Glob filepath.IsAbs file extension join path clean path os-specific path separator file path.
+
+```go
+fmt.Printf("%q\n", filepath.Ext("index"))       // ""
+fmt.Printf("%q\n", filepath.Ext("index.js"))    // ".js"
+fmt.Printf("%q\n", filepath.Ext("main.test.js"))// ".js"
+
+// Common companions: build and inspect OS-specific paths.
+p := filepath.Join("dir", "sub", "file.txt")
+fmt.Println(filepath.Base(p), filepath.Dir(p), filepath.IsAbs(p))
+```

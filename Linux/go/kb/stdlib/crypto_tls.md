@@ -1378,3 +1378,34 @@ BUG: The crypto/tls package only implements some countermeasures
 against Lucky13 attacks on CBC-mode encryption, and only on SHA1
 variants. See http://www.isg.rhul.ac.uk/tls/TLStiming.pdf and
 https://www.imperialviolet.org/2013/02/04/luckythirteen.html.
+
+## idiomatic usage
+
+Dial a TLS connection with a custom root CA pool, or load a certificate/key pair to serve TLS. Keywords: tls Dial Config RootCAs x509.NewCertPool AppendCertsFromPEM LoadX509KeyPair X509KeyPair Listen Certificates ServerName InsecureSkipVerify client server connect certificate handshake HTTPS TLS.
+
+```go
+// TLS client: connect with a custom root-certificate set.
+roots := x509.NewCertPool()
+if ok := roots.AppendCertsFromPEM([]byte(rootPEM)); !ok {
+	panic("failed to parse root certificate")
+}
+conn, err := tls.Dial("tcp", "mail.google.com:443", &tls.Config{
+	RootCAs: roots,
+})
+if err != nil {
+	log.Fatal(err)
+}
+conn.Close()
+
+// TLS server: load a cert/key pair and listen.
+cert, err := tls.LoadX509KeyPair("cert.pem", "key.pem")
+if err != nil {
+	log.Fatal(err)
+}
+cfg := &tls.Config{Certificates: []tls.Certificate{cert}}
+listener, err := tls.Listen("tcp", ":2000", cfg)
+if err != nil {
+	log.Fatal(err)
+}
+_ = listener
+```

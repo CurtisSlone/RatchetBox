@@ -180,3 +180,20 @@ func (l *Logger) SetPrefix(prefix string)
 
 func (l *Logger) Writer() io.Writer
     Writer returns the output destination for the logger.
+
+## idiomatic usage
+
+Create a Logger with a custom output destination, prefix, and flags (such as Lshortfile for source location). Keywords: log.New Logger Print Printf Output Lshortfile prefix flags custom logger write to buffer file logging.
+
+```go
+var (
+	buf    bytes.Buffer
+	logger = log.New(&buf, "logger: ", log.Lshortfile)
+)
+
+logger.Print("Hello, log file!")
+
+fmt.Print(&buf)
+// Output:
+// logger: example_test.go:19: Hello, log file!
+```

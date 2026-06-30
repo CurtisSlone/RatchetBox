@@ -422,3 +422,32 @@ func (sc *ServerConn) Write(req *http.Request, resp *http.Response) error
     set the Response.Close field to true. Write should be considered operational
     until it returns an error, regardless of any errors returned on the
     ServerConn.Read side.
+
+## idiomatic usage
+
+Dump HTTP requests/responses to bytes for logging or debugging, and build a reverse proxy that relays requests to a backend. Keywords: httputil DumpRequest DumpRequestOut DumpResponse ReverseProxy Rewrite ProxyRequest SetURL SetXForwarded proxy forward relay debug log inspect raw HTTP.
+
+```go
+// Dump an incoming request (with body) from inside a handler.
+dump, err := httputil.DumpRequest(r, true)
+if err != nil {
+	http.Error(w, fmt.Sprint(err), http.StatusInternalServerError)
+	return
+}
+fmt.Fprintf(w, "%q", dump)
+```
+
+```go
+// Reverse proxy relaying requests to a backend.
+rpURL, err := url.Parse(backendServer.URL)
+if err != nil {
+	log.Fatal(err)
+}
+frontendProxy := httptest.NewServer(&httputil.ReverseProxy{
+	Rewrite: func(r *httputil.ProxyRequest) {
+		r.SetXForwarded()
+		r.SetURL(rpURL)
+	},
+})
+defer frontendProxy.Close()
+```

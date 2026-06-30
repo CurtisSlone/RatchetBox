@@ -67,3 +67,28 @@ type PublicSuffixList interface {
 
     A public suffix list implementation is in the package
     golang.org/x/net/publicsuffix.
+
+## idiomatic usage
+
+Create an in-memory cookie jar and attach it to an http.Client so cookies persist across requests; back it with golang.org/x/net/publicsuffix. Keywords: cookiejar.New cookiejar.Options PublicSuffixList http.Client Jar Cookies publicsuffix.List persist cookies session http client cookie storage.
+
+```go
+import (
+	"net/http"
+	"net/http/cookiejar"
+
+	"golang.org/x/net/publicsuffix"
+)
+
+func main() {
+	// Always use the public suffix list for correct cookie scoping.
+	jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
+	if err != nil {
+		panic(err)
+	}
+
+	client := &http.Client{Jar: jar}
+	// Cookies set by responses are stored in jar and resent automatically.
+	client.Get("https://example.com/")
+}
+```

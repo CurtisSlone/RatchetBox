@@ -107,3 +107,89 @@ func ValidRune(r rune) bool
 func ValidString(s string) bool
     ValidString reports whether s consists entirely of valid UTF-8-encoded
     runes.
+
+## idiomatic usage
+
+Idiomatic usage of `unicode/utf8` drawn from the package's own runnable examples. Keywords: unicode/utf8 utf8 usage example idiomatic how to use Append Rune Decode Last Rune Decode Last Rune In String.
+
+```go
+package main
+
+import (
+	"fmt"
+	"unicode/utf8"
+)
+
+func main() {
+	buf1 := utf8.AppendRune(nil, 0x10000)
+	buf2 := utf8.AppendRune([]byte("init"), 0x10000)
+	fmt.Println(string(buf1))
+	fmt.Println(string(buf2))
+}
+
+// Output:
+// 𐀀
+// init𐀀
+```
+
+```go
+package main
+
+import (
+	"fmt"
+	"unicode/utf8"
+)
+
+func main() {
+	b := []byte("Hello, 世界")
+
+	for len(b) > 0 {
+		r, size := utf8.DecodeLastRune(b)
+		fmt.Printf("%c %v\n", r, size)
+
+		b = b[:len(b)-size]
+	}
+}
+
+// Output:
+// 界 3
+// 世 3
+//   1
+// , 1
+// o 1
+// l 1
+// l 1
+// e 1
+// H 1
+```
+
+```go
+package main
+
+import (
+	"fmt"
+	"unicode/utf8"
+)
+
+func main() {
+	str := "Hello, 世界"
+
+	for len(str) > 0 {
+		r, size := utf8.DecodeLastRuneInString(str)
+		fmt.Printf("%c %v\n", r, size)
+
+		str = str[:len(str)-size]
+	}
+}
+
+// Output:
+// 界 3
+// 世 3
+//   1
+// , 1
+// o 1
+// l 1
+// l 1
+// e 1
+// H 1
+```

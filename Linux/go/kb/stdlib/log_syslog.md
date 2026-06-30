@@ -137,3 +137,17 @@ use a package outside of the standard library. For background,
 see https://golang.org/issue/1108.
 
 BUG: This package is not implemented on Plan 9.
+
+## idiomatic usage
+
+Dial a remote or local syslog daemon and write tagged messages at a given facility and severity. Keywords: syslog.Dial syslog.New Writer Emerg Warning LOG_WARNING LOG_DAEMON facility priority tag system log rsyslog network logging.
+
+```go
+sysLog, err := syslog.Dial("tcp", "localhost:1234",
+	syslog.LOG_WARNING|syslog.LOG_DAEMON, "demotag")
+if err != nil {
+	log.Fatal(err)
+}
+fmt.Fprintf(sysLog, "This is a daemon warning with demotag.")
+sysLog.Emerg("And this is a daemon emergency with demotag.")
+```

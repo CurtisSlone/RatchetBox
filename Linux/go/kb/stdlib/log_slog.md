@@ -1063,3 +1063,47 @@ func (v Value) Time() time.Time
 func (v Value) Uint64() uint64
     Uint64 returns v's value as a uint64. It panics if v is not an unsigned
     integer.
+
+## idiomatic usage
+
+Emit structured key/value log records with a Logger over a Text or JSON handler, group related attributes, and configure the minimum level. Keywords: slog.New slog.NewTextHandler slog.NewJSONHandler Logger.Info Logger.Error LogAttrs slog.Group slog.String slog.Int slog.Duration HandlerOptions Level ReplaceAttr SetLogLoggerLevel structured logging custom levels grouping attributes.
+
+```go
+// Structured logging with grouped attributes over a text handler.
+logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+logger.Info("finished",
+	slog.Group("req",
+		slog.String("method", "GET"),
+		slog.String("url", "localhost")),
+	slog.Int("status", http.StatusOK),
+	slog.Duration("duration", time.Second))
+// e.g. level=INFO msg=finished req.method=GET req.url=localhost status=200 duration=1s
+```
+
+```go
+// Custom levels and a ReplaceAttr to rename the level key/values.
+const (
+	LevelTrace     = slog.Level(-8)
+	LevelNotice    = slog.Level(2)
+	LevelEmergency = slog.Level(12)
+)
+th := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+	Level: LevelTrace, // show everything; default LevelInfo drops Debug/Trace
+	ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
+		if a.Key == slog.LevelKey {
+			a.Key = "sev"
+			level := a.Value.Any().(slog.Level)
+			switch {
+			case level < slog.LevelInfo:
+				a.Value = slog.StringValue("DEBUG")
+			case level >= LevelEmergency:
+				a.Value = slog.StringValue("EMERGENCY")
+			}
+		}
+		return a
+	},
+})
+logger := slog.New(th)
+logger.Log(context.Background(), LevelEmergency, "missing pilots")
+logger.Info("initiating launch")
+```

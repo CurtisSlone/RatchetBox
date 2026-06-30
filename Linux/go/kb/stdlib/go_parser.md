@@ -108,3 +108,50 @@ const (
 	SkipObjectResolution                              // skip deprecated identifier resolution; see ParseFile
 	AllErrors            = SpuriousErrors             // report all errors (not just the first 10 on different lines)
 )
+
+## idiomatic usage
+
+Idiomatic usage of `go/parser` drawn from the package's own runnable examples. Keywords: go/parser parser usage example idiomatic how to use Parse File.
+
+```go
+package main
+
+import (
+	"fmt"
+	"go/parser"
+	"go/token"
+)
+
+func main() {
+	fset := token.NewFileSet() // positions are relative to fset
+
+	src := `package foo
+
+import (
+	"fmt"
+	"time"
+)
+
+func bar() {
+	fmt.Println(time.Now())
+}`
+
+	// Parse src but stop after processing the imports.
+	f, err := parser.ParseFile(fset, "", src, parser.ImportsOnly)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	// Print the imports from the file's AST.
+	for _, s := range f.Imports {
+		fmt.Println(s.Path.Value)
+	}
+
+}
+
+// Output:
+// 
+// "fmt"
+// "time"
+```

@@ -470,3 +470,166 @@ func (wg *WaitGroup) Go(f func())
 
 func (wg *WaitGroup) Wait()
     Wait blocks until the WaitGroup task counter is zero.
+
+## idiomatic usage
+
+Idiomatic usage of `sync` drawn from the package's own runnable examples. Keywords: sync sync usage example idiomatic how to use Once Once Value Once Values.
+
+```go
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+func main() {
+	var once sync.Once
+	onceBody := func() {
+		fmt.Println("Only once")
+	}
+	done := make(chan bool)
+	for i := 0; i < 10; i++ {
+		go func() {
+			once.Do(onceBody)
+			done <- true
+		}()
+	}
+	for i := 0; i < 10; i++ {
+		<-done
+	}
+}
+
+// Output:
+// Only once
+```
+
+```go
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+func main() {
+	once := sync.OnceValue(func() int {
+		sum := 0
+		for i := 0; i < 1000; i++ {
+			sum += i
+		}
+		fmt.Println("Computed once:", sum)
+		return sum
+	})
+	done := make(chan bool)
+	for i := 0; i < 10; i++ {
+		go func() {
+			const want = 499500
+			got := once()
+			if got != want {
+				fmt.Println("want", want, "got", got)
+			}
+			done <- true
+		}()
+	}
+	for i := 0; i < 10; i++ {
+		<-done
+	}
+}
+
+// Output:
+// Computed once: 499500
+```
+
+```go
+package main
+
+import (
+	"fmt"
+	"os"
+	"sync"
+)
+
+func main() {
+	once := sync.OnceValues(func() ([]byte, error) {
+		fmt.Println("Reading file once")
+		return os.ReadFile("example_test.go")
+	})
+	done := make(chan bool)
+	for i := 0; i < 10; i++ {
+		go func() {
+			data, err := once()
+			if err != nil {
+				fmt.Println("error:", err)
+			}
+			_ = data // Ignore the data for this example
+			done <- true
+		}()
+	}
+	for i := 0; i < 10; i++ {
+		<-done
+	}
+}
+
+// Output:
+// Reading file once
+```
+
+## key idioms (curated)
+
+The `sync` package guards shared state and coordinates goroutines. Use a `sync.Mutex` to make a critical
+section exclusive (always `defer mu.Unlock()` right after `mu.Lock()`); a `sync.RWMutex` when reads vastly
+outnumber writes (`RLock`/`RUnlock` for readers, `Lock`/`Unlock` for writers - never mutate under `RLock`);
+a `sync.WaitGroup` to wait for a set of goroutines to finish (`Add` before launching, `Done` in a
+`defer`, `Wait` to block); and a `sync.Once` to run one-time initialization exactly once across
+goroutines. Embed the mutex next to the data it protects. Keywords: sync mutex lock unlock rwmutex rlock
+runlock read write lock critical section waitgroup add done wait goroutine barrier once do lazy init
+singleton thread-safe concurrent shared state guard defer protect data race.
+
+```go
+package main
+
+import (
+	"fmt"
+	"sync"
+)
+
+// Counter bundles the mutex with the data it protects.
+type Counter struct {
+	mu sync.Mutex
+	n  int
+}
+
+func (c *Counter) Inc() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.n++
+}
+
+func (c *Counter) Value() int {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.n
+}
+
+func main() {
+	var c Counter
+	var wg sync.WaitGroup
+	for i := 0; i < 100; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			c.Inc()
+		}()
+	}
+	wg.Wait() // blocks until all 100 goroutines call Done
+	fmt.Println(c.Value()) // 100
+
+	// sync.Once: run setup exactly once, even under concurrency.
+	var once sync.Once
+	setup := func() { fmt.Println("initialized") }
+	for i := 0; i < 3; i++ {
+		once.Do(setup) // prints "initialized" only the first time
+	}
+}
+```

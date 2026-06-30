@@ -368,3 +368,44 @@ func (b *Writer) WriteString(s string) (int, error)
     WriteString writes a string. It returns the number of bytes written. If the
     count is less than len(s), it also returns an error explaining why the write
     is short.
+
+## idiomatic usage
+
+Wrap a Writer with bufio.NewWriter and remember to Flush; read input line-by-line or word-by-word with bufio.NewScanner, calling Scan in a loop and checking scanner.Err. Keywords: bufio NewWriter Flush Fprint NewScanner Scan Text Bytes Err Split ScanWords ScanLines buffered read lines tokens word count scan stdin reader writer.
+
+```go
+import (
+	"bufio"
+	"fmt"
+	"os"
+)
+
+// Buffered writing (don't forget to Flush!).
+func write() {
+	w := bufio.NewWriter(os.Stdout)
+	fmt.Fprint(w, "Hello, ")
+	fmt.Fprint(w, "world!")
+	w.Flush()
+}
+
+// Scan standard input line by line.
+func readLines() {
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		fmt.Println(scanner.Text()) // Text strips the trailing newline.
+	}
+	if err := scanner.Err(); err != nil {
+		fmt.Fprintln(os.Stderr, "reading standard input:", err)
+	}
+}
+
+// Scan words instead of lines via a split function.
+func countWords(r *bufio.Scanner) int {
+	r.Split(bufio.ScanWords)
+	count := 0
+	for r.Scan() {
+		count++
+	}
+	return count
+}
+```

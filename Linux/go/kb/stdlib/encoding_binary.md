@@ -161,3 +161,54 @@ type ByteOrder interface {
     unsigned integers.
 
     It is implemented by LittleEndian, BigEndian, and NativeEndian.
+
+## idiomatic usage
+
+Serialize and deserialize fixed-size values and structs to/from a byte stream with a chosen byte order, and read/write variable-length integers (varints). Keywords: binary Write Read LittleEndian BigEndian ByteOrder PutUint16 Uint16 PutUvarint Uvarint PutVarint Varint MaxVarintLen64 binary encoding marshal struct bytes serialization endianness.
+
+```go
+import (
+	"bytes"
+	"encoding/binary"
+	"fmt"
+	"math"
+)
+
+func ExampleWrite() {
+	buf := new(bytes.Buffer)
+	var pi float64 = math.Pi
+	err := binary.Write(buf, binary.LittleEndian, pi)
+	if err != nil {
+		fmt.Println("binary.Write failed:", err)
+	}
+	fmt.Printf("% x", buf.Bytes())
+	// Output: 18 2d 44 54 fb 21 09 40
+}
+
+func ExampleRead() {
+	var pi float64
+	b := []byte{0x18, 0x2d, 0x44, 0x54, 0xfb, 0x21, 0x09, 0x40}
+	buf := bytes.NewReader(b)
+	err := binary.Read(buf, binary.LittleEndian, &pi)
+	if err != nil {
+		fmt.Println("binary.Read failed:", err)
+	}
+	fmt.Print(pi)
+	// Output: 3.141592653589793
+}
+
+func ExamplePutUvarint() {
+	buf := make([]byte, binary.MaxVarintLen64)
+	for _, x := range []uint64{1, 2, 127, 128, 255, 256} {
+		n := binary.PutUvarint(buf, x)
+		fmt.Printf("%x\n", buf[:n])
+	}
+	// Output:
+	// 01
+	// 02
+	// 7f
+	// 8001
+	// ff01
+	// 8002
+}
+```

@@ -32,3 +32,23 @@ TYPES
 type KeySizeError int
 
 func (k KeySizeError) Error() string
+
+## idiomatic usage
+
+Construct a Triple DES (3DES) block cipher with des.NewTripleDESCipher (24-byte key; build an EDE2 key by repeating the first 8 bytes), then use it as a cipher.Block with crypto/cipher modes. Keywords: des.NewTripleDESCipher des.NewCipher Triple DES 3DES EDE2 EDE3 cipher.Block key 24 bytes encrypt decrypt KeySizeError.
+
+```go
+import "crypto/des"
+
+// EDE2: duplicate the first 8 bytes of a 16-byte key to make a 24-byte key.
+ede2Key := []byte("example key 1234")
+var tripleDESKey []byte
+tripleDESKey = append(tripleDESKey, ede2Key[:16]...)
+tripleDESKey = append(tripleDESKey, ede2Key[:8]...)
+
+block, err := des.NewTripleDESCipher(tripleDESKey)
+if err != nil {
+	panic(err)
+}
+_ = block // use as a cipher.Block with crypto/cipher modes (e.g. CBC, CTR)
+```

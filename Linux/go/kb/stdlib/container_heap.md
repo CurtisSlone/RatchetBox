@@ -64,3 +64,41 @@ type Interface interface {
     Note that Push and Pop in this interface are for package heap's
     implementation to call. To add and remove things from the heap, use
     heap.Push and heap.Pop.
+
+## idiomatic usage
+
+Implement heap.Interface (Len, Less, Swap, Push, Pop) on a slice type to get a priority queue / min-heap; use heap.Init, heap.Push, heap.Pop to maintain heap order. Keywords: heap.Interface heap.Init heap.Push heap.Pop Len Less Swap min-heap max-heap priority queue IntHeap sort.Interface any.
+
+```go
+import (
+	"container/heap"
+	"fmt"
+)
+
+// An IntHeap is a min-heap of ints.
+type IntHeap []int
+
+func (h IntHeap) Len() int           { return len(h) }
+func (h IntHeap) Less(i, j int) bool { return h[i] < h[j] }
+func (h IntHeap) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+
+func (h *IntHeap) Push(x any) { *h = append(*h, x.(int)) }
+
+func (h *IntHeap) Pop() any {
+	old := *h
+	n := len(old)
+	x := old[n-1]
+	*h = old[0 : n-1]
+	return x
+}
+
+func main() {
+	h := &IntHeap{2, 1, 5}
+	heap.Init(h)
+	heap.Push(h, 3)
+	fmt.Printf("minimum: %d\n", (*h)[0]) // 1
+	for h.Len() > 0 {
+		fmt.Printf("%d ", heap.Pop(h)) // 1 2 3 5
+	}
+}
+```

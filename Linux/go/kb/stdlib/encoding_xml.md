@@ -561,3 +561,66 @@ values, while a data structure is an order-independent collection
 of named values.
 See [encoding/json] for a textual representation more suitable
 to data structures.
+
+## idiomatic usage
+
+Marshal a Go struct (with `xml:"..."` field tags) into indented XML and unmarshal an XML document back into a struct. Keywords: xml Marshal MarshalIndent Unmarshal NewEncoder NewDecoder Encode Decode xml.Name struct tags attr comment marshal unmarshal parse XML encode decode.
+
+```go
+import (
+	"encoding/xml"
+	"fmt"
+	"os"
+)
+
+func ExampleMarshalIndent() {
+	type Address struct {
+		City, State string
+	}
+	type Person struct {
+		XMLName   xml.Name `xml:"person"`
+		Id        int      `xml:"id,attr"`
+		FirstName string   `xml:"name>first"`
+		LastName  string   `xml:"name>last"`
+		Age       int      `xml:"age"`
+		Address
+		Comment string `xml:",comment"`
+	}
+
+	v := &Person{Id: 13, FirstName: "John", LastName: "Doe", Age: 42}
+	v.Comment = " Need more details. "
+	v.Address = Address{"Hanga Roa", "Easter Island"}
+
+	output, err := xml.MarshalIndent(v, "  ", "    ")
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+	}
+	os.Stdout.Write(output)
+}
+
+func ExampleUnmarshal() {
+	type Result struct {
+		XMLName xml.Name `xml:"Person"`
+		Name    string   `xml:"FullName"`
+		Groups  []string `xml:"Group>Value"`
+	}
+	data := `
+		<Person>
+			<FullName>Grace R. Emlin</FullName>
+			<Group>
+				<Value>Friends</Value>
+				<Value>Squash</Value>
+			</Group>
+		</Person>`
+	var v Result
+	if err := xml.Unmarshal([]byte(data), &v); err != nil {
+		fmt.Printf("error: %v", err)
+		return
+	}
+	fmt.Printf("Name: %q\n", v.Name)
+	fmt.Printf("Groups: %v\n", v.Groups)
+	// Output:
+	// Name: "Grace R. Emlin"
+	// Groups: [Friends Squash]
+}
+```

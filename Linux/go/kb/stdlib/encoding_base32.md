@@ -107,3 +107,34 @@ func (enc Encoding) WithPadding(padding rune) *Encoding
     must not be negative, and must be a rune equal or below '\xff'. Padding
     characters above '\x7f' are encoded as their exact byte value rather than
     using the UTF-8 representation of the codepoint.
+
+## idiomatic usage
+
+Encode bytes to a base32 string and decode a base32 string back to bytes using `base32.StdEncoding`. Keywords: base32 encode decode StdEncoding EncodeToString DecodeString Encode Decode EncodedLen DecodedLen NewEncoder base32 encoding decoding.
+
+```go
+import (
+	"encoding/base32"
+	"fmt"
+)
+
+func ExampleEncoding_EncodeToString() {
+	data := []byte("any + old & data")
+	str := base32.StdEncoding.EncodeToString(data)
+	fmt.Println(str)
+	// Output:
+	// MFXHSIBLEBXWYZBAEYQGIYLUME======
+}
+
+func ExampleEncoding_DecodeString() {
+	str := "ONXW2ZJAMRQXIYJAO5UXI2BAAAQGC3TEEDX3XPY="
+	data, err := base32.StdEncoding.DecodeString(str)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+	fmt.Printf("%q\n", data)
+	// Output:
+	// "some data with \x00 and ﻿"
+}
+```

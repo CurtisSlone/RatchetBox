@@ -40,3 +40,47 @@ func Source(src []byte) ([]byte, error)
     applied to the result (such that it has the same leading and trailing space
     as src), and the result is indented by the same amount as the first line of
     src containing code. Imports are not sorted for partial source files.
+
+## idiomatic usage
+
+Idiomatic usage of `go/format` drawn from the package's own runnable examples. Keywords: go/format format usage example idiomatic how to use Node.
+
+```go
+package main
+
+import (
+	"bytes"
+	"fmt"
+	"go/format"
+	"go/parser"
+	"go/token"
+	"log"
+)
+
+func main() {
+	const expr = "(6+2*3)/4"
+
+	// parser.ParseExpr parses the argument and returns the
+	// corresponding ast.Node.
+	node, err := parser.ParseExpr(expr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create a FileSet for node. Since the node does not come
+	// from a real source file, fset will be empty.
+	fset := token.NewFileSet()
+
+	var buf bytes.Buffer
+	err = format.Node(&buf, fset, node)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(buf.String())
+
+}
+
+// Output:
+// (6 + 2*3) / 4
+```

@@ -1,6 +1,12 @@
 Write a COMPLETE Go file for ONE unit of a larger system. Output ONLY the Go source - no prose, no
 markdown fences.
 
+KEYWORD TAGS (so the code can be searched by intent - do this in EVERY file):
+- Directly after the `package` line, emit `// file-kw: <8-14 lowercase keywords summarizing this file's purpose>`.
+- Above EACH top-level func and type, emit `// kw: <4-8 lowercase keywords for what THIS symbol does>` -
+  its action plus domain (e.g. `// kw: append event log write-ahead durable`). Be concise and specific;
+  these replace prose comments and let later steps find the exact code.
+
 The file you are writing is: {{ path }}
 
 PACKAGE (derive from the path):

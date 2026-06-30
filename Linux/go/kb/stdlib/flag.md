@@ -519,3 +519,53 @@ type Value interface {
     Set is called once, in command line order, for each flag present.
     The flag package may call the String method with a zero-valued receiver,
     such as a nil pointer.
+
+## idiomatic usage
+
+Define command-line flags (string, bool, duration, custom types) and call `flag.Parse()` to populate them from os.Args; use a `flag.FlagSet` for subcommands and `Func`/`Var` for custom parsing. Keywords: flag String StringVar Bool Int Duration Parse FlagSet NewFlagSet Var Func TextVar Value command-line flags arguments parse args options subcommands.
+
+```go
+import (
+	"flag"
+	"fmt"
+	"time"
+)
+
+// Top-level flags, parsed at the start of main with flag.Parse().
+var species = flag.String("species", "gopher", "the species we are studying")
+
+// A FlagSet is the idiomatic way to implement subcommands.
+func ExampleFlagSet() {
+	start := func(args []string) {
+		fs := flag.NewFlagSet("start", flag.ContinueOnError)
+		addr := fs.String("addr", ":8080", "`address` to listen on")
+		if err := fs.Parse(args); err != nil {
+			fmt.Printf("error: %s", err)
+			return
+		}
+		fmt.Printf("starting server on %s\n", *addr)
+	}
+	stop := func(args []string) {
+		fs := flag.NewFlagSet("stop", flag.ContinueOnError)
+		timeout := fs.Duration("timeout", time.Second, "stop timeout duration")
+		if err := fs.Parse(args); err != nil {
+			fmt.Printf("error: %s", err)
+			return
+		}
+		fmt.Printf("stopping server (timeout=%v)\n", *timeout)
+	}
+	main := func(args []string) {
+		switch args[1] {
+		case "start":
+			start(args[2:])
+		case "stop":
+			stop(args[2:])
+		}
+	}
+	main([]string{"httpd", "start", "-addr", ":9999"})
+	main([]string{"httpd", "stop"})
+	// Output:
+	// starting server on :9999
+	// stopping server (timeout=1s)
+}
+```

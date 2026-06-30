@@ -168,3 +168,27 @@ func (f FS) ReadDir(name string) ([]fs.DirEntry, error)
 
 func (f FS) ReadFile(name string) ([]byte, error)
     ReadFile reads and returns the content of the named file.
+
+## idiomatic usage
+
+Embed static files into the binary at compile time with the `//go:embed` directive and serve them over HTTP using `embed.FS`. Keywords: embed FS go:embed embed.FS embed files static assets http.FS http.FileServer compile-time embedding include files in binary.
+
+```go
+import (
+	"embed"
+	"log"
+	"net/http"
+)
+
+//go:embed internal/embedtest/testdata/*.txt
+var content embed.FS
+
+func Example() {
+	mux := http.NewServeMux()
+	mux.Handle("/", http.FileServer(http.FS(content)))
+	err := http.ListenAndServe(":8080", mux)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+```

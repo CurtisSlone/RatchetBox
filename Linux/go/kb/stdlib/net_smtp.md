@@ -167,3 +167,42 @@ type ServerInfo struct {
 	Auth []string // advertised authentication mechanisms
 }
     ServerInfo records information about an SMTP server.
+
+## idiomatic usage
+
+Send an email in one call with SendMail and PlainAuth, or drive the protocol manually with Dial/Mail/Rcpt/Data. Keywords: smtp SendMail PlainAuth Dial Mail Rcpt Data Quit Client Auth send email message authentication relay sender recipient.
+
+```go
+// Send an email with authentication in one step.
+auth := smtp.PlainAuth("", "user@example.com", "password", "mail.example.com")
+to := []string{"recipient@example.net"}
+msg := []byte("To: recipient@example.net\r\n" +
+	"Subject: discount Gophers!\r\n" +
+	"\r\n" +
+	"This is the email body.\r\n")
+err := smtp.SendMail("mail.example.com:25", auth, "sender@example.org", to, msg)
+if err != nil {
+	log.Fatal(err)
+}
+```
+
+```go
+// Drive the SMTP protocol manually.
+c, err := smtp.Dial("mail.example.com:25")
+if err != nil {
+	log.Fatal(err)
+}
+if err := c.Mail("sender@example.org"); err != nil {
+	log.Fatal(err)
+}
+if err := c.Rcpt("recipient@example.net"); err != nil {
+	log.Fatal(err)
+}
+wc, err := c.Data()
+if err != nil {
+	log.Fatal(err)
+}
+fmt.Fprintf(wc, "This is the email body")
+wc.Close()
+c.Quit()
+```

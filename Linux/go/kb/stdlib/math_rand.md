@@ -235,3 +235,32 @@ func NewZipf(r *Rand, s float64, v float64, imax uint64) *Zipf
 func (z *Zipf) Uint64() uint64
     Uint64 returns a value drawn from the Zipf distribution described by the
     Zipf object.
+
+## idiomatic usage
+
+Generate pseudo-random integers, floats, permutations, and shuffles; use a seeded *Rand for reproducibility. Keywords: rand.Intn rand.Int31n rand.Int63n rand.Float64 rand.Perm rand.Shuffle rand.New rand.NewSource random number generator seed shuffle slice permutation pick random element.
+
+```go
+import (
+	"fmt"
+	"math/rand"
+	"strings"
+)
+
+func main() {
+	// Random index into a slice.
+	answers := []string{"yes", "no", "maybe"}
+	fmt.Println(answers[rand.Intn(len(answers))])
+
+	// Shuffle a slice in place.
+	words := strings.Fields("ink runs from the corners")
+	rand.Shuffle(len(words), func(i, j int) {
+		words[i], words[j] = words[j], words[i]
+	})
+	fmt.Println(words)
+
+	// Seeded generator for reproducible output.
+	r := rand.New(rand.NewSource(99))
+	fmt.Println(r.Float64(), r.Intn(10), r.Perm(5))
+}
+```

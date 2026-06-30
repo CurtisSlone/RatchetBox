@@ -57,3 +57,34 @@ func Text() string
     enough to prevent brute force guessing attacks and to make the likelihood
     of collisions vanishingly small. A future version may return longer texts as
     needed to maintain those properties.
+
+## idiomatic usage
+
+Generate cryptographically secure random data: fill a byte slice with Read, produce a random int below a bound with Int, generate a prime with Prime, or get a base32 text token with Text. Keywords: Read Int Prime Text rand.Reader rand.Read rand.Int rand.Prime rand.Text big.Int random bytes secure random CSPRNG key token nonce prime number.
+
+```go
+import (
+	"crypto/rand"
+	"fmt"
+	"math/big"
+)
+
+// Random 32-byte key. Read always succeeds with rand.Reader.
+func ExampleRead() {
+	key := make([]byte, 32)
+	rand.Read(key)
+	fmt.Printf("% x\n", key)
+}
+
+// Random integer in [0, 100).
+func ExampleInt() {
+	a, _ := rand.Int(rand.Reader, big.NewInt(100))
+	fmt.Println(a.Int64())
+}
+
+// Random base32 token, safe to display.
+func ExampleText() {
+	key := rand.Text()
+	fmt.Println(key)
+}
+```

@@ -51,3 +51,26 @@ func (x *Index) Read(r io.Reader) error
 
 func (x *Index) Write(w io.Writer) error
     Write writes the index x to w.
+
+## idiomatic usage
+
+Build a suffix array over a byte slice for fast substring search, returning all offsets where a query occurs. Keywords: suffixarray New Index Lookup offsets substring search find occurrences positions full-text byte slice fast string matching.
+
+```go
+import (
+	"fmt"
+	"index/suffixarray"
+)
+
+func ExampleIndex_Lookup() {
+	index := suffixarray.New([]byte("banana"))
+	offsets := index.Lookup([]byte("ana"), -1) // -1 = all matches
+	for _, off := range offsets {
+		fmt.Println(off)
+	}
+
+	// Unordered output:
+	// 1
+	// 3
+}
+```

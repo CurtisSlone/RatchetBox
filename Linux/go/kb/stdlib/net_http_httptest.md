@@ -176,3 +176,37 @@ func (s *Server) Start()
 
 func (s *Server) StartTLS()
     StartTLS starts TLS on a server from NewUnstartedServer.
+
+## idiomatic usage
+
+Test HTTP handlers without a real network: record responses with ResponseRecorder, or spin up a real local Server (incl. TLS/HTTP2). Keywords: httptest.NewRecorder httptest.NewRequest ResponseRecorder Result httptest.NewServer httptest.NewTLSServer ts.Client ts.URL ts.Close mock http server test handler integration test.
+
+```go
+import (
+	"fmt"
+	"io"
+	"net/http"
+	"net/http/httptest"
+)
+
+func main() {
+	// Unit-test a handler with a recorder.
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		io.WriteString(w, "Hello World!")
+	}
+	req := httptest.NewRequest("GET", "http://example.com/foo", nil)
+	w := httptest.NewRecorder()
+	handler(w, req)
+	resp := w.Result()
+	body, _ := io.ReadAll(resp.Body)
+	fmt.Println(resp.StatusCode, string(body))
+
+	// Or run a real local server for end-to-end tests.
+	ts := httptest.NewServer(http.HandlerFunc(handler))
+	defer ts.Close()
+	res, _ := http.Get(ts.URL)
+	greeting, _ := io.ReadAll(res.Body)
+	res.Body.Close()
+	fmt.Printf("%s", greeting)
+}
+```

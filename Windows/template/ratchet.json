@@ -5,7 +5,7 @@
   "models": { "generate": "qwen3-coder:latest", "dispatch": "qwen3-coder:latest", "embed": "nomic-embed-text" },
   "ollama_url": "http://localhost:11434",
   "router": { "autorun": "confirm" },
-  "knowledgeBases": [ { "name": "kb", "path": "kb", "default": true } ],
+  "knowledgeBases": [ { "name": "kb", "path": "kb", "default": true }, { "name": "docs", "path": "kb/docs" } ],
   "requirements": [
     { "name": "Ollama",       "http": "http://localhost:11434/api/tags", "hint": "start Ollama (ollama serve)" },
     { "name": "model generate", "model": "qwen3-coder:latest", "hint": "ollama pull qwen3-coder" },

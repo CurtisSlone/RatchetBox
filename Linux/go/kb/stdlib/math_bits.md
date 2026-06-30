@@ -253,3 +253,32 @@ func TrailingZeros64(x uint64) int
 func TrailingZeros8(x uint8) int
     TrailingZeros8 returns the number of trailing zero bits in x; the result is
     8 for x == 0.
+
+## idiomatic usage
+
+Count set/leading/trailing bits, rotate and reverse bits, and do full-width multi-word add/sub/mul/div arithmetic with carry/borrow. Keywords: bits.OnesCount bits.LeadingZeros bits.TrailingZeros bits.Len bits.RotateLeft bits.Reverse bits.ReverseBytes bits.Add64 bits.Sub64 bits.Mul64 bits.Div64 popcount bit counting carry borrow wide arithmetic.
+
+```go
+// Bit counting and manipulation.
+fmt.Printf("OnesCount(%b) = %d\n", 14, bits.OnesCount(14))          // popcount -> 3
+fmt.Printf("LeadingZeros8(%08b) = %d\n", 1, bits.LeadingZeros8(1))  // 7
+fmt.Printf("TrailingZeros8(%08b) = %d\n", 14, bits.TrailingZeros8(14)) // 1
+fmt.Printf("Len8(%08b) = %d\n", 8, bits.Len8(8))                    // 4
+fmt.Printf("%08b\n", bits.RotateLeft8(15, 2))                       // 00111100
+fmt.Printf("%08b\n", bits.Reverse8(19))                             // 11001000
+```
+
+```go
+// Full-width addition with carry across two words.
+n1 := []uint64{33, 12}
+n2 := []uint64{21, 23}
+d1, carry := bits.Add64(n1[1], n2[1], 0)
+d0, _ := bits.Add64(n1[0], n2[0], carry)
+fmt.Printf("%v + %v = %v\n", n1, n2, []uint64{d0, d1})
+
+// 64x64 -> 128-bit multiply, and 128/64 divide.
+hi, lo := bits.Mul64(0x8000000000000000, 2)
+fmt.Println(hi, lo) // 1 0
+quo, rem := bits.Div64(0, 6, 3)
+fmt.Println(quo, rem) // 2 0
+```

@@ -326,3 +326,44 @@ func (s *Sender) Seal(aad, plaintext []byte) ([]byte, error)
 
     Seal uses incrementing counters for each call, and Open on the receiving
     side must be called in the same order as Seal.
+
+## idiomatic usage
+
+Encrypt a single message from a sender to a recipient with the HPKE one-shot API, choosing a KEM, KDF, and AEAD; the recipient generates a key pair and the sender Seals to the public key while the recipient Opens. Keywords: Seal Open GenerateKey NewPublicKey PublicKey Bytes MLKEM768X25519 HKDFSHA256 AES256GCM DHKEM KEM KDF AEAD hybrid public key encryption encapsulation associated data ciphertext plaintext.
+
+```go
+import (
+	"crypto/hpke"
+	"fmt"
+)
+
+func Example() {
+	kem, kdf, aead := hpke.MLKEM768X25519(), hpke.HKDFSHA256(), hpke.AES256GCM()
+
+	// Recipient generates a key pair and publishes the public key.
+	recipientPrivateKey, err := kem.GenerateKey()
+	if err != nil {
+		panic(err)
+	}
+	publicKeyBytes := recipientPrivateKey.PublicKey().Bytes()
+
+	// Sender seals a message to the recipient's public key.
+	publicKey, err := kem.NewPublicKey(publicKeyBytes)
+	if err != nil {
+		panic(err)
+	}
+	ciphertext, err := hpke.Seal(publicKey, kdf, aead, []byte("example"), []byte("|-()-|"))
+	if err != nil {
+		panic(err)
+	}
+
+	// Recipient opens the ciphertext.
+	plaintext, err := hpke.Open(recipientPrivateKey, kdf, aead, []byte("example"), ciphertext)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Decrypted message: %s\n", plaintext)
+	// Output:
+	// Decrypted message: |-()-|
+}
+```

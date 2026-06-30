@@ -1135,3 +1135,61 @@ func (e *SyscallError) Timeout() bool
     Timeout reports whether this error represents a timeout.
 
 func (e *SyscallError) Unwrap() error
+
+## idiomatic usage
+
+Read and write whole files, open files with flags, work with environment variables, and create temp files/dirs. Keywords: os.ReadFile os.WriteFile os.OpenFile O_APPEND O_CREATE O_RDWR os.Getenv os.Setenv os.LookupEnv os.ExpandEnv os.CreateTemp os.MkdirTemp os.MkdirAll os.ReadDir read file write file open file append environment variable temp file temp directory list directory.
+
+```go
+// Read an entire file into memory and write to stdout.
+data, err := os.ReadFile("testdata/hello")
+if err != nil {
+	log.Fatal(err)
+}
+os.Stdout.Write(data)
+
+// Write an entire file (creating or truncating it).
+if err := os.WriteFile("testdata/hello", []byte("Hello, Gophers!"), 0666); err != nil {
+	log.Fatal(err)
+}
+
+// Open for read/write, creating if absent; or append to a log file.
+f, err := os.OpenFile("access.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+if err != nil {
+	log.Fatal(err)
+}
+if _, err := f.Write([]byte("appended some data\n")); err != nil {
+	f.Close()
+	log.Fatal(err)
+}
+if err := f.Close(); err != nil {
+	log.Fatal(err)
+}
+
+// Environment variables.
+os.Setenv("NAME", "gopher")
+fmt.Println(os.ExpandEnv("$NAME lives in ${BURROW}."))
+if val, ok := os.LookupEnv("MISSING_KEY"); !ok {
+	fmt.Println("MISSING_KEY not set", val)
+}
+
+// Temp dir + file, cleaned up with defer.
+dir, err := os.MkdirTemp("", "example")
+if err != nil {
+	log.Fatal(err)
+}
+defer os.RemoveAll(dir)
+file := filepath.Join(dir, "tmpfile")
+if err := os.WriteFile(file, []byte("content"), 0666); err != nil {
+	log.Fatal(err)
+}
+
+// List a directory.
+files, err := os.ReadDir(".")
+if err != nil {
+	log.Fatal(err)
+}
+for _, file := range files {
+	fmt.Println(file.Name())
+}
+```

@@ -429,3 +429,43 @@ type WalkDirFunc func(path string, d DirEntry, err error) error
         files and directories respectively.
       - If a directory read fails, the function is called a second time for that
         directory to report the error.
+
+## idiomatic usage
+
+Operate on an abstract filesystem (`fs.FS`): read a whole file, match glob patterns, or recursively walk a tree. `os.DirFS` backs an `fs.FS` with the real filesystem. Keywords: fs FS ReadFile Glob WalkDir DirFS ValidPath DirEntry filesystem abstract virtual walk recurse traverse glob pattern match read file path.
+
+```go
+import (
+	"fmt"
+	"io/fs"
+	"log"
+	"os"
+)
+
+func readFile(fsys fs.FS) {
+	data, err := fs.ReadFile(fsys, "hello.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Print(string(data))
+}
+
+func glob(fsys fs.FS) {
+	matches, err := fs.Glob(fsys, "dir/*.go")
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("matches: %v\n", matches)
+}
+
+func ExampleWalkDir() {
+	fileSystem := os.DirFS("/usr/local/go/bin")
+	fs.WalkDir(fileSystem, ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(path)
+		return nil
+	})
+}
+```

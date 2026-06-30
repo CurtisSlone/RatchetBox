@@ -120,3 +120,36 @@ type PublicKey []byte
 
 func (pub PublicKey) Equal(x crypto.PublicKey) bool
     Equal reports whether pub and x have the same value.
+
+## idiomatic usage
+
+Generate an Ed25519 key pair, sign a message with a domain-separation context, and verify it with VerifyWithOptions. Keywords: GenerateKey Sign VerifyWithOptions Options Context PrivateKey PublicKey NewKeyFromSeed Ed25519 EdDSA signature sign verify context ctx public key private key.
+
+```go
+import (
+	"crypto/ed25519"
+	"log"
+)
+
+func Example_ed25519ctx() {
+	pub, priv, err := ed25519.GenerateKey(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	msg := []byte("The quick brown fox jumps over the lazy dog")
+
+	sig, err := priv.Sign(nil, msg, &ed25519.Options{
+		Context: "Example_ed25519ctx",
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := ed25519.VerifyWithOptions(pub, msg, sig, &ed25519.Options{
+		Context: "Example_ed25519ctx",
+	}); err != nil {
+		log.Fatal("invalid signature")
+	}
+}
+```

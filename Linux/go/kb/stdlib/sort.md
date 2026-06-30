@@ -277,3 +277,169 @@ func (x StringSlice) Sort()
     Sort is a convenience method: x.Sort() calls Sort(x).
 
 func (x StringSlice) Swap(i, j int)
+
+## idiomatic usage
+
+Idiomatic usage of `sort` drawn from the package's own runnable examples. Keywords: sort sort usage example idiomatic how to use basic Find Float64s.
+
+```go
+package main
+
+import (
+	"fmt"
+	"sort"
+)
+
+type Person struct {
+	Name string
+	Age  int
+}
+
+func (p Person) String() string {
+	return fmt.Sprintf("%s: %d", p.Name, p.Age)
+}
+
+// ByAge implements sort.Interface for []Person based on
+// the Age field.
+type ByAge []Person
+
+func (a ByAge) Len() int           { return len(a) }
+func (a ByAge) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a ByAge) Less(i, j int) bool { return a[i].Age < a[j].Age }
+
+func main() {
+	people := []Person{
+		{"Bob", 31},
+		{"John", 42},
+		{"Michael", 17},
+		{"Jenny", 26},
+	}
+
+	fmt.Println(people)
+	// There are two ways to sort a slice. First, one can define
+	// a set of methods for the slice type, as with ByAge, and
+	// call sort.Sort. In this first example we use that technique.
+	sort.Sort(ByAge(people))
+	fmt.Println(people)
+
+	// The other way is to use sort.Slice with a custom Less
+	// function, which can be provided as a closure. In this
+	// case no methods are needed. (And if they exist, they
+	// are ignored.) Here we re-sort in reverse order: compare
+	// the closure with ByAge.Less.
+	sort.Slice(people, func(i, j int) bool {
+		return people[i].Age > people[j].Age
+	})
+	fmt.Println(people)
+
+}
+
+// Output:
+// [Bob: 31 John: 42 Michael: 17 Jenny: 26]
+// [Michael: 17 Jenny: 26 Bob: 31 John: 42]
+// [John: 42 Bob: 31 Jenny: 26 Michael: 17]
+```
+
+```go
+package main
+
+import (
+	"fmt"
+	"sort"
+	"strings"
+)
+
+func main() {
+	a := []string{"apple", "banana", "lemon", "mango", "pear", "strawberry"}
+
+	for _, x := range []string{"banana", "orange"} {
+		i, found := sort.Find(len(a), func(i int) int {
+			return strings.Compare(x, a[i])
+		})
+		if found {
+			fmt.Printf("found %s at index %d\n", x, i)
+		} else {
+			fmt.Printf("%s not found, would insert at %d\n", x, i)
+		}
+	}
+
+}
+
+// Output:
+// found banana at index 1
+// orange not found, would insert at 4
+```
+
+```go
+package main
+
+import (
+	"fmt"
+	"math"
+	"sort"
+)
+
+func main() {
+	s := []float64{5.2, -1.3, 0.7, -3.8, 2.6} // unsorted
+	sort.Float64s(s)
+	fmt.Println(s)
+
+	s = []float64{math.Inf(1), math.NaN(), math.Inf(-1), 0.0} // unsorted
+	sort.Float64s(s)
+	fmt.Println(s)
+
+}
+
+// Output:
+// [-3.8 -1.3 0.7 2.6 5.2]
+// [NaN -Inf 0 +Inf]
+```
+
+## key idioms (curated)
+
+There are three idiomatic ways to sort, newest first. For a slice, prefer the generic `slices` package
+(Go 1.21+): `slices.Sort(s)` for ordered element types, or `slices.SortFunc(s, cmp)` where `cmp(a, b)`
+returns a negative/zero/positive int (use `cmp.Compare` or `strings.Compare`, or subtract for ints). For
+ad-hoc sorting without a custom type, `sort.Slice(s, func(i, j int) bool { return s[i] < s[j] })`. To make
+your OWN collection sortable, implement `sort.Interface` (Len, Less, Swap) and call `sort.Sort`. The
+`slices` package also has `Contains`, `Index`, `BinarySearch`, `Min`, `Max`, `Reverse`, and `Equal` -
+reach for these before hand-writing loops. Keywords: sort slices sort.Slice sort.SortFunc sort.Sort
+sort.Interface Len Less Swap slices.Sort slices.SortFunc slices.Contains slices.Index slices.BinarySearch
+slices.Reverse cmp.Compare comparator order ascending descending stable SliceStable by field key.
+
+```go
+package main
+
+import (
+	"cmp"
+	"fmt"
+	"slices"
+	"sort"
+)
+
+type Person struct {
+	Name string
+	Age  int
+}
+
+func main() {
+	nums := []int{3, 1, 2}
+	slices.Sort(nums) // [1 2 3] - simplest for ordered types
+	fmt.Println(nums, slices.Contains(nums, 2))
+
+	people := []Person{{"Bo", 30}, {"Al", 30}, {"Cy", 25}}
+
+	// Sort by Age, then Name, with a comparator (Go 1.21+).
+	slices.SortFunc(people, func(a, b Person) int {
+		if d := cmp.Compare(a.Age, b.Age); d != 0 {
+			return d
+		}
+		return cmp.Compare(a.Name, b.Name)
+	})
+	fmt.Println(people)
+
+	// Older ad-hoc style, still common:
+	sort.Slice(people, func(i, j int) bool { return people[i].Name < people[j].Name })
+	fmt.Println(people)
+}
+```

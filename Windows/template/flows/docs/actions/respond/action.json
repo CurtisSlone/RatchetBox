@@ -1,0 +1,12 @@
+{
+  "$comment": "Retrieve from the docs KB for the question and answer in prose. No oracle: an explanation has nothing to verify, so grounding (the docs retrieval) is the reliability lever, not a gate.",
+  "id": "docs.respond",
+  "kind": "generate",
+  "prompt": "./prompt.md",
+  "inputs": [
+    { "from": "$input", "path": ".", "as": "question" },
+    { "search": "docs", "query": "{{ question }}", "k": 4, "as": "refs", "max_chars": 6000 }
+  ],
+  "on_success": "docs.done",
+  "on_failure": "docs.fail"
+}

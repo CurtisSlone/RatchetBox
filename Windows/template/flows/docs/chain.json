@@ -1,0 +1,9 @@
+{
+  "$comment": "docs: explain how Ratchet and this ratchet work, grounded in the `docs` KB (no oracle - an explanation has nothing to compile/verify). Retrieve from kb/docs and answer in prose. The question is $input. Run: /flow docs \"how do I add a tool\" (or /search docs \"...\", or /route \"explain ...\").",
+  "id": "docs",
+  "version": "1.0.0",
+  "summary": "Explain how Ratchet works and how to drive/author this ratchet, grounded in the docs knowledge base (oracle, context binding, flows, tools, KBs, driving, authoring). A reference/learning path - no code generation.",
+  "entry": "docs.respond",
+  "budgets": { "max_steps": 4, "max_total_tokens": 10000, "max_wallclock_seconds": 300 },
+  "nodes": ["docs.respond", "docs.done", "docs.fail"]
+}

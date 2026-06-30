@@ -60,3 +60,29 @@ func TimeoutReader(r io.Reader) io.Reader
 func TruncateWriter(w io.Writer, n int64) io.Writer
     TruncateWriter returns a Writer that writes to w but stops silently after n
     bytes.
+
+## idiomatic usage
+
+Idiomatic usage of `testing/iotest` drawn from the package's own runnable examples. Keywords: testing/iotest iotest usage example idiomatic how to use Err Reader.
+
+```go
+package main
+
+import (
+	"errors"
+	"fmt"
+	"testing/iotest"
+)
+
+func main() {
+	// A reader that always returns a custom error.
+	r := iotest.ErrReader(errors.New("custom error"))
+	n, err := r.Read(nil)
+	fmt.Printf("n:   %d\nerr: %q\n", n, err)
+
+}
+
+// Output:
+// n:   0
+// err: "custom error"
+```

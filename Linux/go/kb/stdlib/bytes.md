@@ -540,3 +540,44 @@ func (r *Reader) UnreadRune() error
 
 func (r *Reader) WriteTo(w io.Writer) (n int64, err error)
     WriteTo implements the io.WriterTo interface.
+
+## idiomatic usage
+
+Accumulate output in a bytes.Buffer (no init needed; Write/Fprintf/WriteTo/String/Bytes), and use the package functions to search, compare, split, and trim byte slices. Keywords: bytes Buffer Write WriteString WriteTo String Bytes Contains ContainsAny HasPrefix HasSuffix Index IndexByte Compare Equal EqualFold Split SplitN Join Fields Replace ReplaceAll Trim TrimSpace TrimPrefix TrimSuffix ToLower ToUpper Cut Repeat Count search substring tokenize concatenate compare equality.
+
+```go
+import (
+	"bytes"
+	"fmt"
+	"os"
+)
+
+// bytes.Buffer accumulates output; needs no initialization.
+func buffer() {
+	var b bytes.Buffer
+	b.Write([]byte("Hello "))
+	fmt.Fprintf(&b, "world!")
+	b.WriteTo(os.Stdout) // Or use b.String() / b.Bytes().
+}
+
+// Common byte-slice operations.
+func ops() {
+	fmt.Println(bytes.Contains([]byte("seafood"), []byte("foo"))) // true
+	fmt.Println(bytes.Equal([]byte("Go"), []byte("Go")))          // true
+	fmt.Println(bytes.Index([]byte("chicken"), []byte("ken")))    // 4
+
+	fmt.Printf("%q\n", bytes.Split([]byte("a,b,c"), []byte(",")))      // ["a" "b" "c"]
+	fmt.Printf("%s\n", bytes.Join([][]byte{[]byte("a"), []byte("b")}, []byte("-"))) // a-b
+	fmt.Printf("%s\n", bytes.ReplaceAll([]byte("oink oink"), []byte("oink"), []byte("moo")))
+	fmt.Printf("%q\n", bytes.TrimSpace([]byte("  hi  "))) // "hi"
+
+	// Compare returns -1, 0, or +1; interpret against zero.
+	if bytes.Compare([]byte("a"), []byte("b")) < 0 {
+		// a sorts before b
+	}
+
+	// Cut splits around the first occurrence of a separator.
+	before, after, found := bytes.Cut([]byte("key=value"), []byte("="))
+	fmt.Printf("%q %q %v\n", before, after, found) // "key" "value" true
+}
+```

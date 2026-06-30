@@ -299,3 +299,84 @@ func WithoutCancel(parent Context) Context
     and is not canceled when parent is canceled. The returned context returns no
     Deadline or Err, and its Done channel is nil. Calling Cause on the returned
     context returns nil.
+
+## idiomatic usage
+
+Derive cancelable/timeout/deadline contexts from a parent (always defer cancel), and select on ctx.Done() to abort work; attach request-scoped data with WithValue. Keywords: context.Background WithCancel WithTimeout WithDeadline WithValue WithCancelCause CancelFunc ctx.Done ctx.Err ctx.Value Cause deadline timeout cancellation goroutine leak select.
+
+```go
+import (
+	"context"
+	"fmt"
+	"time"
+)
+
+// Cancelable context to stop a goroutine and avoid a leak.
+ctx, cancel := context.WithCancel(context.Background())
+defer cancel()
+
+// Timeout/deadline: abandon work when the context expires.
+ctx, cancel = context.WithTimeout(context.Background(), 50*time.Millisecond)
+defer cancel()
+select {
+case <-ctx.Done():
+	fmt.Println(ctx.Err()) // context deadline exceeded
+}
+
+// Pass and retrieve a request-scoped value.
+type favKey string
+ctx = context.WithValue(context.Background(), favKey("language"), "Go")
+if v := ctx.Value(favKey("language")); v != nil {
+	fmt.Println("found value:", v) // found value: Go
+}
+```
+
+## key idioms (curated)
+
+A `context.Context` carries a cancellation signal (and optional deadline/values) down a call tree so that
+goroutines can stop promptly when the work is no longer needed. Derive a child with
+`context.WithCancel`, `context.WithTimeout`, or `context.WithDeadline`; ALWAYS `defer cancel()` to release
+resources even if you finish early. A worker selects on `ctx.Done()` and returns `ctx.Err()` when it
+fires; pass `ctx` as the FIRST argument of any blocking/IO function and never store it in a struct. Use
+`context.Background()` at the top (main, a request handler root) and propagate the derived context
+downward. Keywords: context cancel cancellation timeout deadline ctx Done Err WithCancel WithTimeout
+WithDeadline WithValue Background TODO propagate goroutine leak stop signal deadline-exceeded canceled
+select first argument graceful.
+
+```go
+package main
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"time"
+)
+
+// worker runs until it finishes or the context is canceled/times out.
+func worker(ctx context.Context) error {
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err() // context.Canceled or context.DeadlineExceeded
+		case <-time.After(50 * time.Millisecond):
+			// ... do a unit of work ...
+			return nil
+		}
+	}
+}
+
+func main() {
+	// Cap the whole operation at 100ms; cancel() frees the timer.
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	defer cancel()
+
+	if err := worker(ctx); err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			fmt.Println("timed out")
+		}
+		return
+	}
+	fmt.Println("done")
+}
+```

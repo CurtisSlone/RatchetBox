@@ -52,3 +52,30 @@ func Keys[Map ~map[K]V, K comparable, V any](m Map) iter.Seq[K]
 func Values[Map ~map[K]V, K comparable, V any](m Map) iter.Seq[V]
     Values returns an iterator over values in m. The iteration order is not
     specified and is not guaranteed to be the same from one call to the next.
+
+## idiomatic usage
+
+Clone or merge maps, iterate keys/values (often sorted via slices.Sorted), and delete entries by predicate. Keywords: maps.Clone maps.Copy maps.Keys maps.Values maps.DeleteFunc maps.Equal maps.Insert maps.Collect slices.Sorted shallow copy merge maps filter map sorted keys iterator.
+
+```go
+// Shallow-clone a map.
+m1 := map[string]int{"key": 1}
+m2 := maps.Clone(m1)
+m2["key"] = 100
+fmt.Println(m1["key"], m2["key"]) // 1 100
+
+// Merge src into dst (dst keys overwritten).
+dst := map[string]int{"one": 10}
+maps.Copy(dst, map[string]int{"one": 1, "two": 2})
+fmt.Println(dst) // map[one:1 two:2]
+
+// Sorted iteration over keys.
+m := map[int]string{1: "one", 10: "Ten", 1000: "THOUSAND"}
+keys := slices.Sorted(maps.Keys(m))
+fmt.Println(keys) // [1 10 1000]
+
+// Delete entries matching a predicate.
+n := map[string]int{"one": 1, "two": 2, "three": 3}
+maps.DeleteFunc(n, func(k string, v int) bool { return v%2 != 0 })
+fmt.Println(n) // map[two:2]
+```

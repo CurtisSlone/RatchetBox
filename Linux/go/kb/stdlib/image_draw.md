@@ -70,3 +70,31 @@ type RGBA64Image interface {
     a SetRGBA64 method to change a single pixel. SetRGBA64 is equivalent to
     calling Set, but it can avoid allocations from converting concrete color
     types to the color.Color interface type.
+
+## idiomatic usage
+
+Composite or quantize one image onto another; `draw.FloydSteinberg.Draw` dithers a source image into a limited palette. Keywords: draw Draw DrawMask FloydSteinberg Drawer dither dithering quantize palette paletted composite blend NewPaletted Porter-Duff Over Src.
+
+```go
+import (
+	"image"
+	"image/color"
+	"image/draw"
+)
+
+func ExampleDrawer_floydSteinberg() {
+	im := image.NewGray(image.Rect(0, 0, 130, 50))
+	// ... fill im with grayscale pixels ...
+
+	pi := image.NewPaletted(im.Bounds(), []color.Color{
+		color.Gray{Y: 255},
+		color.Gray{Y: 160},
+		color.Gray{Y: 70},
+		color.Gray{Y: 35},
+		color.Gray{Y: 0},
+	})
+
+	// Dither the grayscale source into the 5-color palette.
+	draw.FloydSteinberg.Draw(pi, im.Bounds(), im, image.Point{})
+}
+```

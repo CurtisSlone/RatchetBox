@@ -579,3 +579,42 @@ type Stringer interface {
     the “native” format for that value. The String method is used to print
     values passed as an operand to any format that accepts a string or to an
     unformatted printer such as Print.
+
+## idiomatic usage
+
+Format and print values with `Printf`/`Sprintf` (to stdout or a string), scan formatted input with `Sscanf`, and build wrapped errors with `Errorf` and the `%w` verb. Keywords: fmt Print Println Printf Sprint Sprintf Fprintf Sscanf Fscanf Errorf format string verbs %s %d %v %q %w printf format print scan parse string error formatting.
+
+```go
+import (
+	"fmt"
+	"io"
+	"os"
+)
+
+func ExampleSprintf() {
+	const name, age = "Kim", 22
+	s := fmt.Sprintf("%s is %d years old.\n", name, age)
+	io.WriteString(os.Stdout, s)
+	// Output:
+	// Kim is 22 years old.
+}
+
+func ExampleSscanf() {
+	var name string
+	var age int
+	n, err := fmt.Sscanf("Kim is 22 years old", "%s is %d years old", &name, &age)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%d: %s, %d\n", n, name, age)
+	// Output:
+	// 2: Kim, 22
+}
+
+func ExampleErrorf() {
+	const name, id = "bueller", 17
+	err := fmt.Errorf("user %q (id %d) not found", name, id)
+	fmt.Println(err.Error())
+	// Output: user "bueller" (id 17) not found
+}
+```

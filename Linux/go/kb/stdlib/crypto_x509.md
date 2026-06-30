@@ -1039,3 +1039,42 @@ type VerifyOptions struct {
 	// Has unexported fields.
 }
     VerifyOptions contains parameters for Certificate.Verify.
+
+## idiomatic usage
+
+Parse a PEM certificate and verify it against a custom root pool, or parse a PKIX public key and type-switch on the algorithm. Keywords: x509 ParseCertificate Certificate.Verify VerifyOptions NewCertPool AppendCertsFromPEM ParsePKIXPublicKey pem.Decode DNSName Roots certificate chain validation parse PEM public key RSA ECDSA Ed25519.
+
+```go
+// Verify a certificate against a custom root set.
+roots := x509.NewCertPool()
+if ok := roots.AppendCertsFromPEM([]byte(rootPEM)); !ok {
+	panic("failed to parse root certificate")
+}
+block, _ := pem.Decode([]byte(certPEM))
+cert, err := x509.ParseCertificate(block.Bytes)
+if err != nil {
+	log.Fatal(err)
+}
+opts := x509.VerifyOptions{
+	DNSName: "mail.google.com",
+	Roots:   roots,
+}
+if _, err := cert.Verify(opts); err != nil {
+	log.Fatal(err)
+}
+
+// Parse a PKIX public key and switch on its type.
+block, _ = pem.Decode([]byte(pubPEM))
+pub, err := x509.ParsePKIXPublicKey(block.Bytes)
+if err != nil {
+	log.Fatal(err)
+}
+switch pub := pub.(type) {
+case *rsa.PublicKey:
+	fmt.Println("RSA:", pub)
+case *ecdsa.PublicKey:
+	fmt.Println("ECDSA:", pub)
+case ed25519.PublicKey:
+	fmt.Println("Ed25519:", pub)
+}
+```

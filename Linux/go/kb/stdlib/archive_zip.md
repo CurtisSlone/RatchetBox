@@ -318,3 +318,61 @@ func (w *Writer) SetOffset(n int64)
     underlying writer. It should be used when the zip data is appended to an
     existing file, such as a binary executable. It must be called before any
     data is written.
+
+## idiomatic usage
+
+Create a zip archive with zip.NewWriter and w.Create per file, always checking the error from w.Close; read an existing zip with zip.OpenReader and open each f.File entry with f.Open. Keywords: zip NewWriter Create Close OpenReader ReadCloser File Open RegisterCompressor Deflate compress decompress unzip archive extract iterate entries.
+
+```go
+import (
+	"archive/zip"
+	"bytes"
+	"fmt"
+	"io"
+	"log"
+	"os"
+)
+
+// Write a zip archive.
+func writeZip() {
+	buf := new(bytes.Buffer)
+	w := zip.NewWriter(buf)
+	files := []struct{ Name, Body string }{
+		{"readme.txt", "This archive contains some text files."},
+		{"gopher.txt", "Gopher names:\nGeorge\nGeoffrey\nGonzo"},
+	}
+	for _, file := range files {
+		f, err := w.Create(file.Name)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if _, err := f.Write([]byte(file.Body)); err != nil {
+			log.Fatal(err)
+		}
+	}
+	// Make sure to check the error on Close.
+	if err := w.Close(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+// Read a zip archive.
+func readZip() {
+	r, err := zip.OpenReader("archive.zip")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer r.Close()
+
+	for _, f := range r.File {
+		fmt.Printf("Contents of %s:\n", f.Name)
+		rc, err := f.Open()
+		if err != nil {
+			log.Fatal(err)
+		}
+		io.Copy(os.Stdout, rc)
+		rc.Close()
+		fmt.Println()
+	}
+}
+```

@@ -46,3 +46,43 @@ type Ordered interface {
     operator such as == or < will always report false when comparing a NaN value
     with any other value, NaN or not. See the Compare function for a consistent
     way to compare NaN values.
+
+## idiomatic usage
+
+Use cmp.Compare/cmp.Less for ordering of ordered types (handy as slices.SortFunc comparators), and cmp.Or to pick the first non-zero value, which chains tie-breaking comparisons or supplies defaults. Keywords: cmp Compare Less Or three-way comparison ordered generics default fallback first non-zero tie-break sort comparator SortFunc multi-key sort NaN.
+
+```go
+import (
+	"cmp"
+	"fmt"
+	"slices"
+	"strings"
+)
+
+// Compare returns -1, 0, or +1; Less returns a bool.
+func basics() {
+	fmt.Println(cmp.Compare(1, 2)) // -1
+	fmt.Println(cmp.Less("a", "aa")) // true
+}
+
+// cmp.Or returns its first non-zero argument (e.g. defaults).
+func defaults(userInput string) string {
+	return cmp.Or(userInput, "default")
+}
+
+// cmp.Or chains comparisons for multi-key sorting.
+func sortOrders(orders []Order) {
+	slices.SortFunc(orders, func(a, b Order) int {
+		return cmp.Or(
+			strings.Compare(a.Customer, b.Customer),
+			strings.Compare(a.Product, b.Product),
+			cmp.Compare(b.Price, a.Price), // higher price first
+		)
+	})
+}
+
+type Order struct {
+	Product, Customer string
+	Price             float64
+}
+```

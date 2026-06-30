@@ -768,3 +768,51 @@ const (
 	YCbCrSubsampleRatio410
 )
 func (s YCbCrSubsampleRatio) String() string
+
+## idiomatic usage
+
+Decode an image of any registered format (sniffing the type), then inspect bounds and pixels; use `DecodeConfig` to read only dimensions. Register decoders via blank imports. Keywords: image Decode DecodeConfig At RGBA Bounds histogram pixels width height format jpeg png gif read load decode image file blank import side-effect.
+
+```go
+import (
+	"fmt"
+	"image"
+	"io"
+	"log"
+	"os"
+
+	// Import format packages for their decoder registration side-effects.
+	_ "image/jpeg"
+	_ "image/png"
+)
+
+func decode() {
+	reader, err := os.Open("video-001.jpeg")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer reader.Close()
+
+	m, format, err := image.Decode(reader)
+	if err != nil {
+		log.Fatal(err)
+	}
+	bounds := m.Bounds()
+	for y := bounds.Min.Y; y < bounds.Max.Y; y++ {
+		for x := bounds.Min.X; x < bounds.Max.X; x++ {
+			r, g, b, a := m.At(x, y).RGBA() // each in [0, 65535]
+			_, _, _, _ = r, g, b, a
+		}
+	}
+	fmt.Println("format:", format)
+}
+
+// Read only the dimensions without decoding all pixels.
+func config(r io.Reader) {
+	cfg, format, err := image.DecodeConfig(r)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Width:", cfg.Width, "Height:", cfg.Height, "Format:", format)
+}
+```

@@ -29,3 +29,31 @@ func New() hash.Hash
 
 func Sum(data []byte) [Size]byte
     Sum returns the MD5 checksum of the data.
+
+## idiomatic usage
+
+Compute an MD5 checksum either in one shot with Sum or by streaming data through a hash.Hash via New (e.g. hashing a file with io.Copy). Keywords: New Sum md5.New md5.Sum hash checksum digest io.WriteString io.Copy h.Sum file hash MD5 message digest fingerprint.
+
+```go
+import (
+	"crypto/md5"
+	"fmt"
+	"io"
+)
+
+// One-shot checksum of a byte slice.
+func ExampleSum() {
+	data := []byte("These pretzels are making me thirsty.")
+	fmt.Printf("%x", md5.Sum(data))
+	// Output: b0804ec967f48520697662a204f5fe72
+}
+
+// Streaming a hash with New.
+func ExampleNew() {
+	h := md5.New()
+	io.WriteString(h, "The fog is getting thicker!")
+	io.WriteString(h, "And Leon's getting laaarger!")
+	fmt.Printf("%x", h.Sum(nil))
+	// Output: e2c569be17396eca2a2e3c11578123ed
+}
+```

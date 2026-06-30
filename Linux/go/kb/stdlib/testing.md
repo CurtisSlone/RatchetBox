@@ -1233,3 +1233,175 @@ type TB interface {
 	// Has unexported methods.
 }
     TB is the interface common to T, B, and F.
+
+## idiomatic usage
+
+Idiomatic usage of `testing` drawn from the package's own runnable examples. Keywords: testing testing usage example idiomatic how to use B Loop B Report Metric B Report Metric parallel.
+
+```go
+package main
+
+import (
+	"math/rand/v2"
+	"testing"
+)
+
+// ExBenchmark shows how to use b.Loop in a benchmark.
+//
+// (If this were a real benchmark, not an example, this would be named
+// BenchmarkSomething.)
+func ExBenchmark(b *testing.B) {
+	// Generate a large random slice to use as an input.
+	// Since this is done before the first call to b.Loop(),
+	// it doesn't count toward the benchmark time.
+	input := make([]int, 128<<10)
+	for i := range input {
+		input[i] = rand.Int()
+	}
+
+	// Perform the benchmark.
+	for b.Loop() {
+		// Normally, the compiler would be allowed to optimize away the call
+		// to sum because it has no side effects and the result isn't used.
+		// However, inside a b.Loop loop, the compiler ensures function calls
+		// aren't optimized away.
+		sum(input)
+	}
+
+	// Outside the loop, the timer is stopped, so we could perform
+	// cleanup if necessary without affecting the result.
+}
+
+func sum(data []int) int {
+	total := 0
+	for _, value := range data {
+		total += value
+	}
+	return total
+}
+
+func main() {
+	testing.Benchmark(ExBenchmark)
+}
+```
+
+```go
+package main
+
+import (
+	"cmp"
+	"slices"
+	"testing"
+)
+
+func main() {
+	// This reports a custom benchmark metric relevant to a
+	// specific algorithm (in this case, sorting).
+	testing.Benchmark(func(b *testing.B) {
+		var compares int64
+		for b.Loop() {
+			s := []int{5, 4, 3, 2, 1}
+			slices.SortFunc(s, func(a, b int) int {
+				compares++
+				return cmp.Compare(a, b)
+			})
+		}
+		// This metric is per-operation, so divide by b.N and
+		// report it as a "/op" unit.
+		b.ReportMetric(float64(compares)/float64(b.N), "compares/op")
+		// This metric is per-time, so divide by b.Elapsed and
+		// report it as a "/ns" unit.
+		b.ReportMetric(float64(compares)/float64(b.Elapsed().Nanoseconds()), "compares/ns")
+	})
+}
+```
+
+```go
+package main
+
+import (
+	"cmp"
+	"slices"
+	"sync/atomic"
+	"testing"
+)
+
+func main() {
+	// This reports a custom benchmark metric relevant to a
+	// specific algorithm (in this case, sorting) in parallel.
+	testing.Benchmark(func(b *testing.B) {
+		var compares atomic.Int64
+		b.RunParallel(func(pb *testing.PB) {
+			for pb.Next() {
+				s := []int{5, 4, 3, 2, 1}
+				slices.SortFunc(s, func(a, b int) int {
+					// Because RunParallel runs the function many
+					// times in parallel, we must increment the
+					// counter atomically to avoid racing writes.
+					compares.Add(1)
+					return cmp.Compare(a, b)
+				})
+			}
+		})
+
+		// NOTE: Report each metric once, after all of the parallel
+		// calls have completed.
+
+		// This metric is per-operation, so divide by b.N and
+		// report it as a "/op" unit.
+		b.ReportMetric(float64(compares.Load())/float64(b.N), "compares/op")
+		// This metric is per-time, so divide by b.Elapsed and
+		// report it as a "/ns" unit.
+		b.ReportMetric(float64(compares.Load())/float64(b.Elapsed().Nanoseconds()), "compares/ns")
+	})
+}
+```
+
+## key idioms (curated)
+
+Go tests live in `*_test.go` files. A test is `func TestXxx(t *testing.T)`; report failures with
+`t.Errorf` (continues) or `t.Fatalf` (stops). The idiomatic style is TABLE-DRIVEN: a slice of cases, each
+run as a SUBTEST via `t.Run(name, func(t *testing.T){...})`, so failures name the exact case and run
+independently. Critically: a test must assert the EXPECTED value is CORRECT, not just non-zero - compute
+or hand-verify each `want`. A fuzz test is `func FuzzXxx(f *testing.F)`: seed with `f.Add(...)` and assert
+an invariant inside `f.Fuzz(func(t *testing.T, args...){...})`; fuzz args must be primitives or `[]byte`.
+A benchmark is `func BenchmarkXxx(b *testing.B)` looping `for b.Loop()` (or `for i := 0; i < b.N; i++`).
+Use `t.Helper()` in assertion helpers and `t.Cleanup(fn)` for teardown. Keywords: testing test t.Testing
+TestXxx t.Run subtest table-driven cases want got t.Errorf t.Fatalf assert FuzzXxx f.Fuzz f.Add fuzzing
+property invariant BenchmarkXxx b.N b.Loop t.Helper t.Cleanup t.Parallel testing.T testing.F testing.B.
+
+```go
+package main_test
+
+import "testing"
+
+func Add(a, b int) int { return a + b }
+
+func TestAdd(t *testing.T) {
+	cases := []struct {
+		name     string
+		a, b     int
+		want     int // each want is hand-verified to be CORRECT
+	}{
+		{"zeros", 0, 0, 0},
+		{"positive", 2, 3, 5},
+		{"negative", -1, 4, 3},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) { // subtest: names the failing case
+			if got := Add(c.a, c.b); got != c.want {
+				t.Errorf("Add(%d,%d) = %d, want %d", c.a, c.b, got, c.want)
+			}
+		})
+	}
+}
+
+func FuzzAdd(f *testing.F) {
+	f.Add(1, 2)
+	f.Fuzz(func(t *testing.T, a, b int) {
+		if Add(a, b) != Add(b, a) { // an invariant true for ALL inputs (commutativity)
+			t.Fatalf("Add not commutative for %d,%d", a, b)
+		}
+	})
+}
+```

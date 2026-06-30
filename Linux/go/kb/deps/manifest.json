@@ -19,6 +19,22 @@
       ]
     },
     {
+      "id": "github_com_redis_go_redis_v9",
+      "title": "github.com/redis/go-redis/v9 (third-party Go module)",
+      "path": "github_com_redis_go_redis_v9.md",
+      "summary": "Package redis implements a Redis client.",
+      "keywords": [
+        "context",
+        "func",
+        "redi",
+        "command",
+        "value",
+        "return",
+        "information",
+        "http"
+      ]
+    },
+    {
       "id": "golang_org_x_sync_singleflight",
       "title": "golang.org/x/sync/singleflight (third-party Go module)",
       "path": "golang_org_x_sync_singleflight.md",

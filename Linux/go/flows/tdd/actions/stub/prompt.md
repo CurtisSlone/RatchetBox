@@ -3,6 +3,9 @@ compiler checks the shapes are coherent before any behavior exists.
 
 Rules:
 - IGNORE any `role: test` spec - tests are authored in a later phase, NOT here. Emit no `_test.go` file.
+  Specifically: do NOT emit ANY `Test*`, `Fuzz*`, or `Benchmark*` function, and do NOT emit any function
+  whose signature takes `*testing.T`, `*testing.F`, or `*testing.B`. Never import `testing`. Those belong
+  to the later test phase; emitting them here breaks the stub compile.
 - ONE PACKAGE, ONE FILE, AT THE ROOT. Put EVERY non-test type and function in a SINGLE file at the module
   root, named for the domain (e.g. `ttlcache.go`), starting with `package main`. There are NO
   subdirectories and NO other packages - regardless of how the types are named. All types live together in
@@ -19,6 +22,9 @@ Rules:
 - IMPORTS: panic bodies use NO packages, so import ONLY packages named in the SIGNATURES themselves
   (e.g. a `context.Context` parameter, an `io.Reader` return). Do NOT import anything the implementation
   will need later - Go rejects unused imports and the stub would not compile. Most stubs need zero imports.
+- KEYWORD TAGS: after the `package` line emit `// file-kw: <8-14 lowercase keywords for the file's purpose>`,
+  and above EACH top-level func/type emit `// kw: <4-8 lowercase keywords for what that symbol does>` (its
+  action + domain). Keep them on the stubs too - they make the code searchable by intent.
 - Output ONLY marker files: a line `=== <path>.go ===` then the file body. No prose, no code fences.
 
 ## Specs

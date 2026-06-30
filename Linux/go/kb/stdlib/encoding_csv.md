@@ -206,3 +206,62 @@ func (w *Writer) Write(record []string) error
 func (w *Writer) WriteAll(records [][]string) error
     WriteAll writes multiple CSV records to w using Writer.Write and then calls
     Writer.Flush, returning any error from the Flush.
+
+## idiomatic usage
+
+Read CSV records from an io.Reader (one at a time or all at once with ReadAll) and write CSV records to an io.Writer; the reader can be configured for custom delimiters and comment lines. Keywords: csv NewReader Read ReadAll NewWriter Write WriteAll Flush Comma Comment parse CSV comma-separated values reader writer delimiter.
+
+```go
+import (
+	"encoding/csv"
+	"fmt"
+	"io"
+	"log"
+	"os"
+	"strings"
+)
+
+func ExampleReader() {
+	in := `first_name,last_name,username
+"Rob","Pike",rob
+Ken,Thompson,ken
+"Robert","Griesemer","gri"
+`
+	r := csv.NewReader(strings.NewReader(in))
+	for {
+		record, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(record)
+	}
+	// Output:
+	// [first_name last_name username]
+	// [Rob Pike rob]
+	// [Ken Thompson ken]
+	// [Robert Griesemer gri]
+}
+
+func ExampleWriter() {
+	records := [][]string{
+		{"first_name", "last_name", "username"},
+		{"Rob", "Pike", "rob"},
+	}
+	w := csv.NewWriter(os.Stdout)
+	for _, record := range records {
+		if err := w.Write(record); err != nil {
+			log.Fatalln("error writing record to csv:", err)
+		}
+	}
+	w.Flush()
+	if err := w.Error(); err != nil {
+		log.Fatal(err)
+	}
+	// Output:
+	// first_name,last_name,username
+	// Rob,Pike,rob
+}
+```

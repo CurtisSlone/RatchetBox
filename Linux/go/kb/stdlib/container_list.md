@@ -98,3 +98,25 @@ func (l *List) PushFrontList(other *List)
 func (l *List) Remove(e *Element) any
     Remove removes e from l if e is an element of list l. It returns the element
     value e.Value. The element must not be nil.
+
+## idiomatic usage
+
+Build a doubly linked list with list.New, insert with PushBack/PushFront/InsertBefore/InsertAfter, then walk it from Front to Back via Next. Keywords: list.New PushBack PushFront InsertBefore InsertAfter Front Back Next Prev Value Remove doubly linked list Element iterate traverse.
+
+```go
+import (
+	"container/list"
+	"fmt"
+)
+
+l := list.New()
+e4 := l.PushBack(4)
+e1 := l.PushFront(1)
+l.InsertBefore(3, e4)
+l.InsertAfter(2, e1)
+
+// Iterate through the list front-to-back.
+for e := l.Front(); e != nil; e = e.Next() {
+	fmt.Println(e.Value) // 1 2 3 4
+}
+```

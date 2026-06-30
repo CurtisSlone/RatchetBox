@@ -33,6 +33,8 @@ flush(); print(" ".join(paths))
 echo "wrote test: $written"
 # Strip unused imports the model left in the test (goimports-lite) before the compile check.
 for p in $written; do bash tools/prune_imports.sh "$root/$p" >/dev/null 2>&1 || true; done
+# gofmt the test file too, so the later harden gofmt gate stays green.
+for p in $written; do gofmt -w "$root/$p" >/dev/null 2>&1 || true; done
 cd "$root" || exit 1
 
 # 1. must COMPILE (vet type-checks without requiring a linked binary)

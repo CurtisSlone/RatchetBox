@@ -411,3 +411,39 @@ func (pub *PublicKey) Equal(x crypto.PublicKey) bool
 func (pub *PublicKey) Size() int
     Size returns the modulus size in bytes. Raw signatures and ciphertexts for
     or by this public key will have the same size.
+
+## idiomatic usage
+
+Generate an RSA key, then sign/verify with PKCS#1 v1.5 over a SHA-256 hash, or encrypt/decrypt with OAEP. Keywords: rsa GenerateKey SignPKCS1v15 VerifyPKCS1v15 EncryptOAEP DecryptOAEP PrivateKey PublicKey crypto.SHA256 sha256.Sum256 sign signature verify encrypt decrypt public key private key RSA padding.
+
+```go
+// Generate a key.
+privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
+if err != nil {
+	log.Fatal(err)
+}
+
+// Sign the hash of a message (only small/hash values are signed directly).
+message := []byte("message to be signed")
+hashed := sha256.Sum256(message)
+signature, err := rsa.SignPKCS1v15(nil, privateKey, crypto.SHA256, hashed[:])
+if err != nil {
+	log.Fatal(err)
+}
+
+// Verify with the public key.
+if err := rsa.VerifyPKCS1v15(&privateKey.PublicKey, crypto.SHA256, hashed[:], signature); err != nil {
+	log.Fatal(err) // invalid signature
+}
+
+// Encrypt/decrypt a secret with OAEP.
+ciphertext, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, &privateKey.PublicKey, []byte("secret"), []byte("label"))
+if err != nil {
+	log.Fatal(err)
+}
+plaintext, err := rsa.DecryptOAEP(sha256.New(), nil, privateKey, ciphertext, []byte("label"))
+if err != nil {
+	log.Fatal(err)
+}
+fmt.Printf("%s", plaintext)
+```

@@ -209,3 +209,127 @@ func UnaryOp(op token.Token, y Value, prec uint) Value
     UnaryOp returns the result of the unary expression op y. The operation must
     be defined for the operand. If prec > 0 it specifies the ^ (xor) result size
     in bits. If y is Unknown, the result is Unknown.
+
+## idiomatic usage
+
+Idiomatic usage of `go/constant` drawn from the package's own runnable examples. Keywords: go/constant constant usage example idiomatic how to use Binary Op Compare Sign.
+
+```go
+package main
+
+import (
+	"fmt"
+	"go/constant"
+	"go/token"
+)
+
+func main() {
+	// 11 / 0.5
+	a := constant.MakeUint64(11)
+	b := constant.MakeFloat64(0.5)
+	c := constant.BinaryOp(a, token.QUO, b)
+	fmt.Println(c)
+
+}
+
+// Output:
+// 22
+```
+
+```go
+package main
+
+import (
+	"fmt"
+	"go/constant"
+	"go/token"
+	"slices"
+)
+
+func main() {
+	vs := []constant.Value{
+		constant.MakeString("Z"),
+		constant.MakeString("bacon"),
+		constant.MakeString("go"),
+		constant.MakeString("Frame"),
+		constant.MakeString("defer"),
+		constant.MakeFromLiteral(`"a"`, token.STRING, 0),
+	}
+
+	slices.SortFunc(vs, func(a, b constant.Value) int {
+		if constant.Compare(a, token.LSS, b) {
+			return -1
+		}
+		if constant.Compare(a, token.GTR, b) {
+			return +1
+		}
+		return 0
+	})
+
+	for _, v := range vs {
+		fmt.Println(constant.StringVal(v))
+	}
+
+}
+
+// Output:
+// 
+// Frame
+// Z
+// a
+// bacon
+// defer
+// go
+```
+
+```go
+package main
+
+import (
+	"fmt"
+	"go/constant"
+	"go/token"
+)
+
+func main() {
+	zero := constant.MakeInt64(0)
+	one := constant.MakeInt64(1)
+	negOne := constant.MakeInt64(-1)
+
+	mkComplex := func(a, b constant.Value) constant.Value {
+		b = constant.MakeImag(b)
+		return constant.BinaryOp(a, token.ADD, b)
+	}
+
+	vs := []constant.Value{
+		negOne,
+		mkComplex(zero, negOne),
+		mkComplex(one, negOne),
+		mkComplex(negOne, one),
+		mkComplex(negOne, negOne),
+		zero,
+		mkComplex(zero, zero),
+		one,
+		mkComplex(zero, one),
+		mkComplex(one, one),
+	}
+
+	for _, v := range vs {
+		fmt.Printf("% d %s\n", constant.Sign(v), v)
+	}
+
+}
+
+// Output:
+// 
+// -1 -1
+// -1 (0 + -1i)
+// -1 (1 + -1i)
+// -1 (-1 + 1i)
+// -1 (-1 + -1i)
+//  0 0
+//  0 (0 + 0i)
+//  1 1
+//  1 (0 + 1i)
+//  1 (1 + 1i)
+```

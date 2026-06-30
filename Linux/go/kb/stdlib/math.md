@@ -657,3 +657,26 @@ func Yn(n int, x float64) float64
         Yn(n < 0, 0) = +Inf if n is odd, -Inf if n is even
         Yn(n, x < 0) = NaN
         Yn(n, NaN) = NaN
+
+## idiomatic usage
+
+Common floating-point math: square roots, powers, rounding, logarithms, and absolute values. Keywords: math.Sqrt math.Pow math.Pow10 math.Round math.RoundToEven math.Ceil math.Floor math.Abs math.Log math.Log2 math.Log10 math.Mod math.Trunc math.Cbrt math.Pi hypotenuse exponent rounding round up round down.
+
+```go
+import (
+	"fmt"
+	"math"
+)
+
+func main() {
+	const a, b = 3, 4
+	fmt.Printf("%.1f\n", math.Sqrt(a*a+b*b)) // 5.0
+	fmt.Printf("%.1f\n", math.Pow(2, 3))      // 8.0
+	fmt.Printf("%.1f\n", math.Ceil(1.49))     // 2.0
+	fmt.Printf("%.1f\n", math.Floor(1.51))    // 1.0
+	fmt.Printf("%.1f\n", math.Round(10.5))    // 11.0
+	fmt.Printf("%.1f\n", math.Abs(-2))        // 2.0
+	fmt.Printf("%.1f\n", math.Log2(256))      // 8.0
+	fmt.Printf("%.1f\n", math.Mod(7, 4))      // 3.0
+}
+```

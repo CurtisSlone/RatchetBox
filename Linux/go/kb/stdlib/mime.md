@@ -115,3 +115,33 @@ func (e WordEncoder) Encode(charset, s string) string
     Encode returns the encoded-word form of s. If s is ASCII without special
     characters, it is returned unchanged. The provided charset is the IANA
     charset name of s. It is case insensitive.
+
+## idiomatic usage
+
+Parse and format MIME media types (Content-Type), and encode/decode RFC 2047 encoded-words in mail headers. Keywords: mime.ParseMediaType mime.FormatMediaType mime.WordEncoder mime.WordDecoder QEncoding BEncoding Encode DecodeHeader content-type charset boundary email header encoding.
+
+```go
+import (
+	"fmt"
+	"mime"
+)
+
+func main() {
+	// Parse a Content-Type header into type + params.
+	mediatype, params, err := mime.ParseMediaType("text/html; charset=utf-8")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(mediatype, params["charset"]) // text/html utf-8
+
+	// Format a media type from parts.
+	fmt.Println(mime.FormatMediaType("text/html", map[string]string{"charset": "utf-8"}))
+
+	// Encode/decode RFC 2047 encoded-words in mail headers.
+	enc := mime.QEncoding.Encode("utf-8", "¡Hola, señor!")
+	fmt.Println(enc)
+	dec := new(mime.WordDecoder)
+	header, _ := dec.DecodeHeader("=?utf-8?q?=C3=89ric?= <eric@example.org>")
+	fmt.Println(header) // Éric <eric@example.org>
+}
+```

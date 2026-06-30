@@ -3036,3 +3036,36 @@ func (w WaitStatus) StopSignal() Signal
 func (w WaitStatus) Stopped() bool
 
 func (w WaitStatus) TrapCause() int
+
+## idiomatic usage
+
+Idiomatic usage of `syscall` drawn from the package's own runnable examples. Keywords: syscall syscall usage example idiomatic how to use Load Library.
+
+```go
+package main
+
+import (
+	"syscall"
+)
+
+func abort(funcname string, err error) {
+	panic(funcname + " failed: " + err.Error())
+}
+
+func main() {
+	h, err := syscall.LoadLibrary("kernel32.dll")
+	if err != nil {
+		abort("LoadLibrary", err)
+	}
+	defer syscall.FreeLibrary(h)
+	proc, err := syscall.GetProcAddress(h, "GetVersion")
+	if err != nil {
+		abort("GetProcAddress", err)
+	}
+	r, _, _ := syscall.Syscall(uintptr(proc), 0, 0, 0, 0)
+	major := byte(r)
+	minor := uint8(r >> 8)
+	build := uint16(r >> 16)
+	print("windows version ", major, ".", minor, " (Build ", build, ")\n")
+}
+```

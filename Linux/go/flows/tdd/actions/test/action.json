@@ -1,10 +1,12 @@
 {
-  "$comment": "TEST rung: author the test(s) from the specs' behavior, matching the stub signatures EXACTLY. Includes a property/fuzz target. On a red-gate failure the flow loops back here; `feedback` carries tdd_red's verdict (empty on the first pass).",
+  "$comment": "TEST rung: author the test(s) from the specs' behavior, matching the stub signatures EXACTLY. Includes a property/fuzz target. On a red-gate failure the flow loops back here; `prev_test` is the previous failing test and `feedback` is tdd_red's verdict (both empty on the first pass) - EDIT the prior test to fix exactly what the verdict flags, do not cold-start.",
   "id": "tdd.test", "kind": "generate", "prompt": "./prompt.md",
   "inputs": [
     { "from": "tdd.read", "path": ".", "as": "specs" },
     { "from": "tdd.stub", "path": ".", "as": "stub", "max_chars": 4000 },
-    { "from": "tdd.red", "path": ".", "as": "feedback", "max_chars": 1500 }
+    { "from": "tdd.test", "path": ".", "as": "prev_test", "max_chars": 4000 },
+    { "from": "tdd.red", "path": ".", "as": "feedback", "max_chars": 1500 },
+    { "search": "stdlib", "query": "writing Go tests table-driven subtests property invariant fuzz f.Fuzz f.Add assert expected value correct hand-verified Errorf Fatalf testing.T", "k": 1, "as": "testing_refs", "max_chars": 3500 }
   ],
   "on_success": "tdd.red", "on_failure": "tdd.fail"
 }

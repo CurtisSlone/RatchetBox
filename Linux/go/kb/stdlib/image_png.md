@@ -69,3 +69,53 @@ type UnsupportedError string
     PNG feature.
 
 func (e UnsupportedError) Error() string
+
+## idiomatic usage
+
+Encode an in-memory image to a PNG file, or decode a PNG stream into an `image.Image`. Keywords: png Encode Decode write read save load PNG image NewNRGBA color os.Create Bounds At pixels.
+
+```go
+import (
+	"image"
+	"image/color"
+	"image/png"
+	"io"
+	"log"
+	"os"
+)
+
+func ExampleEncode() {
+	const width, height = 256, 256
+	img := image.NewNRGBA(image.Rect(0, 0, width, height))
+	for y := 0; y < height; y++ {
+		for x := 0; x < width; x++ {
+			img.Set(x, y, color.NRGBA{
+				R: uint8((x + y) & 255),
+				G: uint8((x + y) << 1 & 255),
+				B: uint8((x + y) << 2 & 255),
+				A: 255,
+			})
+		}
+	}
+
+	f, err := os.Create("image.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := png.Encode(f, img); err != nil {
+		f.Close()
+		log.Fatal(err)
+	}
+	if err := f.Close(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func decode(r io.Reader) {
+	img, err := png.Decode(r)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_ = img.Bounds()
+}
+```

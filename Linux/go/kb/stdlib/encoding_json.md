@@ -510,3 +510,126 @@ type UnsupportedValueError struct {
     unsupported value.
 
 func (e *UnsupportedValueError) Error() string
+
+## idiomatic usage
+
+Marshal Go values (structs, maps, slices) into JSON and unmarshal JSON back into Go values; use `json.NewDecoder` to read a stream of JSON objects. Keywords: json Marshal MarshalIndent Unmarshal NewDecoder NewEncoder Decode Encode struct tags json:"name" pretty print stream parse JSON encode decode serialize.
+
+```go
+import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"log"
+	"os"
+	"strings"
+)
+
+func ExampleMarshal() {
+	type ColorGroup struct {
+		ID     int
+		Name   string
+		Colors []string
+	}
+	group := ColorGroup{
+		ID:     1,
+		Name:   "Reds",
+		Colors: []string{"Crimson", "Red", "Ruby", "Maroon"},
+	}
+	b, err := json.Marshal(group)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+	os.Stdout.Write(b)
+	// Output:
+	// {"ID":1,"Name":"Reds","Colors":["Crimson","Red","Ruby","Maroon"]}
+}
+
+func ExampleUnmarshal() {
+	var jsonBlob = []byte(`[
+	{"Name": "Platypus", "Order": "Monotremata"},
+	{"Name": "Quoll",    "Order": "Dasyuromorphia"}
+]`)
+	type Animal struct {
+		Name  string
+		Order string
+	}
+	var animals []Animal
+	err := json.Unmarshal(jsonBlob, &animals)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+	fmt.Printf("%+v", animals)
+	// Output:
+	// [{Name:Platypus Order:Monotremata} {Name:Quoll Order:Dasyuromorphia}]
+}
+
+func ExampleDecoder() {
+	const jsonStream = `
+	{"Name": "Ed", "Text": "Knock knock."}
+	{"Name": "Sam", "Text": "Who's there?"}
+`
+	type Message struct {
+		Name, Text string
+	}
+	dec := json.NewDecoder(strings.NewReader(jsonStream))
+	for {
+		var m Message
+		if err := dec.Decode(&m); err == io.EOF {
+			break
+		} else if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("%s: %s\n", m.Name, m.Text)
+	}
+	// Output:
+	// Ed: Knock knock.
+	// Sam: Who's there?
+}
+```
+
+## key idioms (curated)
+
+`encoding/json` converts between Go values and JSON. `json.Marshal(v)` produces bytes; `json.Unmarshal(b,
+&v)` fills a pointer. Control field names and behavior with struct tags: `json:"name"` renames,
+`json:",omitempty"` drops zero values, `json:"-"` skips. Only EXPORTED (capitalized) fields are
+(un)marshaled. For streams (HTTP bodies, files) use `json.NewDecoder(r).Decode(&v)` and
+`json.NewEncoder(w).Encode(v)` instead of reading everything into memory. Decode into `map[string]any`
+or `json.RawMessage` when the shape is dynamic, and implement `MarshalJSON`/`UnmarshalJSON` for custom
+formats. Keywords: encoding/json json marshal unmarshal encode decode struct tag omitempty json:"-"
+NewDecoder NewEncoder stream RawMessage MarshalJSON UnmarshalJSON serialize deserialize parse exported
+field map[string]any number string bytes http body.
+
+```go
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+)
+
+type User struct {
+	Name  string `json:"name"`
+	Email string `json:"email,omitempty"` // omitted when empty
+	pass  string `json:"-"`               // unexported: never serialized
+	Tags  []string `json:"tags"`
+}
+
+func main() {
+	u := User{Name: "Ada", Tags: []string{"go"}}
+
+	b, _ := json.Marshal(u)
+	fmt.Println(string(b)) // {"name":"Ada","tags":["go"]}  (email omitted)
+
+	var back User
+	if err := json.Unmarshal([]byte(`{"name":"Ada","email":"a@x.io"}`), &back); err != nil {
+		panic(err)
+	}
+	fmt.Println(back.Name, back.Email)
+
+	// Dynamic shape: decode into a map.
+	var m map[string]any
+	_ = json.Unmarshal([]byte(`{"n":1,"ok":true}`), &m)
+	fmt.Println(m["ok"]) // true ; numbers decode as float64
+}
+```

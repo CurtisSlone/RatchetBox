@@ -161,3 +161,127 @@ func Unwrap(err error) error
 
     Unwrap only calls a method of the form "Unwrap() error". In particular
     Unwrap does not unwrap errors returned by Join.
+
+## idiomatic usage
+
+Create errors with `errors.New`, wrap them with `fmt.Errorf("...%w", err)`, combine several with `errors.Join`, and inspect a wrapped error chain with `errors.Is`, `errors.As`, and `errors.Unwrap`. Keywords: errors New Is As Unwrap Join sentinel error wrapping %w error chain errors.Is errors.As match error type fs.ErrNotExist compare errors.
+
+```go
+import (
+	"errors"
+	"fmt"
+	"io/fs"
+	"os"
+)
+
+func ExampleNew() {
+	err := errors.New("emit macho dwarf: elf header corrupted")
+	if err != nil {
+		fmt.Print(err)
+	}
+	// Output: emit macho dwarf: elf header corrupted
+}
+
+func ExampleIs() {
+	if _, err := os.Open("non-existing"); err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			fmt.Println("file does not exist")
+		} else {
+			fmt.Println(err)
+		}
+	}
+	// Output:
+	// file does not exist
+}
+
+func ExampleAs() {
+	if _, err := os.Open("non-existing"); err != nil {
+		var pathError *fs.PathError
+		if errors.As(err, &pathError) {
+			fmt.Println("Failed at path:", pathError.Path)
+		} else {
+			fmt.Println(err)
+		}
+	}
+	// Output:
+	// Failed at path: non-existing
+}
+
+func ExampleJoin() {
+	err1 := errors.New("err1")
+	err2 := errors.New("err2")
+	err := errors.Join(err1, err2)
+	fmt.Println(err)
+	if errors.Is(err, err1) {
+		fmt.Println("err is err1")
+	}
+	// Output:
+	// err1
+	// err2
+	// err is err1
+}
+
+func ExampleUnwrap() {
+	err1 := errors.New("error1")
+	err2 := fmt.Errorf("error2: [%w]", err1)
+	fmt.Println(err2)
+	fmt.Println(errors.Unwrap(err2))
+	// Output:
+	// error2: [error1]
+	// error1
+}
+```
+
+## key idioms (curated)
+
+Go errors are values. Wrap an error with context using `fmt.Errorf("...: %w", err)` (the `%w` verb keeps
+the original reachable). Test identity with `errors.Is(err, ErrNotFound)` (matches a sentinel through
+wrapping) and extract a concrete type with `errors.As(err, &target)`. Define a SENTINEL with
+`var ErrNotFound = errors.New("not found")` for callers to compare against, or a CUSTOM error type when
+you need to carry fields - give it an `Error() string` method (and an `Unwrap()` if it wraps). Combine
+several errors with `errors.Join`. Return errors, do not panic for ordinary failure. Keywords: errors
+error wrap wrapping %w fmt.Errorf errors.Is errors.As errors.Join errors.New Unwrap sentinel custom error
+type Error() method match identity extract handle propagate not found returns value.
+
+```go
+package main
+
+import (
+	"errors"
+	"fmt"
+)
+
+var ErrNotFound = errors.New("not found") // sentinel callers can compare against
+
+// A custom error type carrying a field.
+type ValidationError struct{ Field string }
+
+func (e *ValidationError) Error() string { return "invalid field: " + e.Field }
+
+func lookup(id string) error {
+	if id == "" {
+		return &ValidationError{Field: "id"}
+	}
+	// wrap the sentinel with context using %w
+	return fmt.Errorf("lookup %q: %w", id, ErrNotFound)
+}
+
+func main() {
+	err := lookup("x")
+
+	// Is: matches the sentinel even though it is wrapped.
+	if errors.Is(err, ErrNotFound) {
+		fmt.Println("not found")
+	}
+
+	// As: pull out a concrete type.
+	var ve *ValidationError
+	if errors.As(lookup(""), &ve) {
+		fmt.Println("bad field:", ve.Field)
+	}
+
+	// Join: aggregate multiple failures.
+	all := errors.Join(errors.New("a failed"), errors.New("b failed"))
+	fmt.Println(all)
+}
+```

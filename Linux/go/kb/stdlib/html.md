@@ -22,3 +22,26 @@ func UnescapeString(s string) string
     For example, "&aacute;" unescapes to "á", as does "&#225;" and "&#xE1;".
     UnescapeString(EscapeString(s)) == s always holds, but the converse isn't
     always true.
+
+## idiomatic usage
+
+Escape the five special HTML characters (`<`, `>`, `&`, `'`, `"`) in plain text for safe output, and reverse the process. Keywords: EscapeString UnescapeString html escape unescape sanitize encode decode entities special characters ampersand angle brackets.
+
+```go
+import (
+	"fmt"
+	"html"
+)
+
+func ExampleEscapeString() {
+	const s = `"Fran & Freddie's Diner" <tasty@example.com>`
+	fmt.Println(html.EscapeString(s))
+	// Output: &#34;Fran &amp; Freddie&#39;s Diner&#34; &lt;tasty@example.com&gt;
+}
+
+func ExampleUnescapeString() {
+	const s = `&quot;Fran &amp; Freddie&#39;s Diner&quot; &lt;tasty@example.com&gt;`
+	fmt.Println(html.UnescapeString(s))
+	// Output: "Fran & Freddie's Diner" <tasty@example.com>
+}
+```

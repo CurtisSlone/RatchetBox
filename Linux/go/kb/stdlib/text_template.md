@@ -741,3 +741,177 @@ func (t *Template) ParseGlob(pattern string) (*Template, error)
 
 func (t *Template) Templates() []*Template
     Templates returns a slice of defined templates associated with t.
+
+## idiomatic usage
+
+Idiomatic usage of `text/template` drawn from the package's own runnable examples. Keywords: text/template template usage example idiomatic how to use Template Template block Template func.
+
+```go
+package main
+
+import (
+	"log"
+	"os"
+	"text/template"
+)
+
+func main() {
+	// Define a template.
+	const letter = `
+Dear {{.Name}},
+{{if .Attended}}
+It was a pleasure to see you at the wedding.
+{{- else}}
+It is a shame you couldn't make it to the wedding.
+{{- end}}
+{{with .Gift -}}
+Thank you for the lovely {{.}}.
+{{end}}
+Best wishes,
+Josie
+`
+
+	// Prepare some data to insert into the template.
+	type Recipient struct {
+		Name, Gift string
+		Attended   bool
+	}
+	var recipients = []Recipient{
+		{"Aunt Mildred", "bone china tea set", true},
+		{"Uncle John", "moleskin pants", false},
+		{"Cousin Rodney", "", false},
+	}
+
+	// Create a new template and parse the letter into it.
+	t := template.Must(template.New("letter").Parse(letter))
+
+	// Execute the template for each recipient.
+	for _, r := range recipients {
+		err := t.Execute(os.Stdout, r)
+		if err != nil {
+			log.Println("executing template:", err)
+		}
+	}
+
+}
+
+// Output:
+// Dear Aunt Mildred,
+// 
+// It was a pleasure to see you at the wedding.
+// Thank you for the lovely bone china tea set.
+// 
+// Best wishes,
+// Josie
+// 
+// Dear Uncle John,
+// 
+// It is a shame you couldn't make it to the wedding.
+// Thank you for the lovely moleskin pants.
+// 
+// Best wishes,
+// Josie
+// 
+// Dear Cousin Rodney,
+// 
+// It is a shame you couldn't make it to the wedding.
+// 
+// Best wishes,
+// Josie
+```
+
+```go
+package main
+
+import (
+	"log"
+	"os"
+	"strings"
+	"text/template"
+)
+
+func main() {
+	const (
+		master  = `Names:{{block "list" .}}{{"\n"}}{{range .}}{{println "-" .}}{{end}}{{end}}`
+		overlay = `{{define "list"}} {{join . ", "}}{{end}} `
+	)
+	var (
+		funcs     = template.FuncMap{"join": strings.Join}
+		guardians = []string{"Gamora", "Groot", "Nebula", "Rocket", "Star-Lord"}
+	)
+	masterTmpl, err := template.New("master").Funcs(funcs).Parse(master)
+	if err != nil {
+		log.Fatal(err)
+	}
+	overlayTmpl, err := template.Must(masterTmpl.Clone()).Parse(overlay)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := masterTmpl.Execute(os.Stdout, guardians); err != nil {
+		log.Fatal(err)
+	}
+	if err := overlayTmpl.Execute(os.Stdout, guardians); err != nil {
+		log.Fatal(err)
+	}
+}
+
+// Output:
+// Names:
+// - Gamora
+// - Groot
+// - Nebula
+// - Rocket
+// - Star-Lord
+// Names: Gamora, Groot, Nebula, Rocket, Star-Lord
+```
+
+```go
+package main
+
+import (
+	"log"
+	"os"
+	"strings"
+	"text/template"
+)
+
+func main() {
+	// First we create a FuncMap with which to register the function.
+	funcMap := template.FuncMap{
+		// The name "title" is what the function will be called in the template text.
+		"title": strings.Title,
+	}
+
+	// A simple template definition to test our function.
+	// We print the input text several ways:
+	// - the original
+	// - title-cased
+	// - title-cased and then printed with %q
+	// - printed with %q and then title-cased.
+	const templateText = `
+Input: {{printf "%q" .}}
+Output 0: {{title .}}
+Output 1: {{title . | printf "%q"}}
+Output 2: {{printf "%q" . | title}}
+`
+
+	// Create a template, add the function map, and parse the text.
+	tmpl, err := template.New("titleTest").Funcs(funcMap).Parse(templateText)
+	if err != nil {
+		log.Fatalf("parsing: %s", err)
+	}
+
+	// Run the template to verify the output.
+	err = tmpl.Execute(os.Stdout, "the go programming language")
+	if err != nil {
+		log.Fatalf("execution: %s", err)
+	}
+
+}
+
+// Output:
+// Input: "the go programming language"
+// Output 0: The Go Programming Language
+// Output 1: "The Go Programming Language"
+// Output 2: "The Go Programming Language"
+```

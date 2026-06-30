@@ -388,3 +388,42 @@ type GobEncoder interface {
     the encoding used by a GobEncoder is stable as the software evolves.
     For instance, it might make sense for GobEncode to include a version number
     in the encoding.
+
+## idiomatic usage
+
+Use a `gob.Encoder` to serialize Go values into a stream (e.g. a network connection or buffer) and a `gob.Decoder` to deserialize them on the other side; register concrete types when encoding interface values. Keywords: gob NewEncoder NewDecoder Encode Decode Register gob encoding serialize Go values stream marshal interface concrete type RPC.
+
+```go
+import (
+	"bytes"
+	"encoding/gob"
+	"fmt"
+	"log"
+)
+
+type P struct {
+	X, Y, Z int
+	Name    string
+}
+
+// Create an encoder and decoder, transmit some values, then receive them.
+func Example_basic() {
+	var network bytes.Buffer        // Stand-in for a network connection
+	enc := gob.NewEncoder(&network) // Will write to network.
+	dec := gob.NewDecoder(&network) // Will read from network.
+
+	err := enc.Encode(P{3, 4, 5, "Pythagoras"})
+	if err != nil {
+		log.Fatal("encode error:", err)
+	}
+
+	var p P
+	err = dec.Decode(&p)
+	if err != nil {
+		log.Fatal("decode error:", err)
+	}
+	fmt.Printf("%q: {%d, %d}\n", p.Name, p.X, p.Y)
+	// Output:
+	// "Pythagoras": {3, 4}
+}
+```

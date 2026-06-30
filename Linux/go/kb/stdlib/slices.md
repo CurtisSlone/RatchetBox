@@ -217,3 +217,74 @@ func SortedStableFunc[E any](seq iter.Seq[E], cmp func(E, E) int) []E
 
 func Values[Slice ~[]E, E any](s Slice) iter.Seq[E]
     Values returns an iterator that yields the slice elements in order.
+
+## idiomatic usage
+
+Idiomatic usage of `slices` drawn from the package's own runnable examples. Keywords: slices slices usage example idiomatic how to use All Append Seq Backward.
+
+```go
+package main
+
+import (
+	"fmt"
+	"slices"
+)
+
+func main() {
+	names := []string{"Alice", "Bob", "Vera"}
+	for i, v := range slices.All(names) {
+		fmt.Println(i, ":", v)
+	}
+}
+
+// Output:
+// 0 : Alice
+// 1 : Bob
+// 2 : Vera
+```
+
+```go
+package main
+
+import (
+	"fmt"
+	"slices"
+)
+
+func main() {
+	seq := func(yield func(int) bool) {
+		for i := 0; i < 10; i += 2 {
+			if !yield(i) {
+				return
+			}
+		}
+	}
+
+	s := slices.AppendSeq([]int{1, 2}, seq)
+	fmt.Println(s)
+}
+
+// Output:
+// [1 2 0 2 4 6 8]
+```
+
+```go
+package main
+
+import (
+	"fmt"
+	"slices"
+)
+
+func main() {
+	names := []string{"Alice", "Bob", "Vera"}
+	for i, v := range slices.Backward(names) {
+		fmt.Println(i, ":", v)
+	}
+}
+
+// Output:
+// 2 : Vera
+// 1 : Bob
+// 0 : Alice
+```

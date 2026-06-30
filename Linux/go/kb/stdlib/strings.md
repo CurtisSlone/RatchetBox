@@ -425,3 +425,70 @@ func (r *Replacer) Replace(s string) string
 
 func (r *Replacer) WriteString(w io.Writer, s string) (n int, err error)
     WriteString writes s to w with all replacements performed.
+
+## idiomatic usage
+
+Idiomatic usage of `strings` drawn from the package's own runnable examples. Keywords: strings strings usage example idiomatic how to use Builder Clone Compare.
+
+```go
+package main
+
+import (
+	"fmt"
+	"strings"
+)
+
+func main() {
+	var b strings.Builder
+	for i := 3; i >= 1; i-- {
+		fmt.Fprintf(&b, "%d...", i)
+	}
+	b.WriteString("ignition")
+	fmt.Println(b.String())
+
+}
+
+// Output:
+// 3...2...1...ignition
+```
+
+```go
+package main
+
+import (
+	"fmt"
+	"strings"
+	"unsafe"
+)
+
+func main() {
+	s := "abc"
+	clone := strings.Clone(s)
+	fmt.Println(s == clone)
+	fmt.Println(unsafe.StringData(s) == unsafe.StringData(clone))
+}
+
+// Output:
+// true
+// false
+```
+
+```go
+package main
+
+import (
+	"fmt"
+	"strings"
+)
+
+func main() {
+	fmt.Println(strings.Compare("a", "b"))
+	fmt.Println(strings.Compare("a", "a"))
+	fmt.Println(strings.Compare("b", "a"))
+}
+
+// Output:
+// -1
+// 0
+// 1
+```

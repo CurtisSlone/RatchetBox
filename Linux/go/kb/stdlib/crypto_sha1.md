@@ -30,3 +30,26 @@ func New() hash.Hash
 
 func Sum(data []byte) [Size]byte
     Sum returns the SHA-1 checksum of the data.
+
+## idiomatic usage
+
+Compute a SHA-1 digest either in one shot with sha1.Sum, or incrementally via sha1.New and streaming data with io.Copy/io.WriteString. Keywords: sha1 New Sum hash digest checksum fingerprint hash.Hash Write io.Copy streaming file hashing SHA-1.
+
+```go
+// One-shot checksum.
+data := []byte("This page intentionally left blank.")
+fmt.Printf("% x", sha1.Sum(data))
+// Output: af 06 49 23 bb f2 30 15 96 aa c4 c2 73 ba 32 17 8e bc 4a 96
+
+// Streaming a file into the hash.
+f, err := os.Open("file.txt")
+if err != nil {
+	log.Fatal(err)
+}
+defer f.Close()
+h := sha1.New()
+if _, err := io.Copy(h, f); err != nil {
+	log.Fatal(err)
+}
+fmt.Printf("% x", h.Sum(nil))
+```

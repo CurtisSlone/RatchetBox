@@ -21,8 +21,9 @@ constraints: <stdlib limits, concurrency notes, `package main`, or `package: <su
 
 Rules:
 - Every spec needs `name`, a valid `role`, and at least one of `api`/`behavior`/`intent`.
-- Exactly ONE unit has role `behavior` or `gui` (the entry point -> main.go). Include a `role: test`
-  unit that exercises the core behavior.
+- Exactly ONE unit has role `behavior` or `gui` (the entry point -> main.go). Include EXACTLY ONE
+  `role: test` unit; it may declare several `Test*`/`Fuzz*` functions but lives in ONE spec/file - do NOT
+  split example tests and fuzz tests into separate test units (they collide in one package).
 - Keep names consistent ACROSS specs so the units fit together (one unit's `api` is another's call).
 - Use the reference material to name the RIGHT concerns: e.g. `atomic.Int64` for a concurrent counter,
   `http.Server` timeouts + `http.MaxBytesReader` + graceful shutdown for a server, a non-blocking

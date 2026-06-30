@@ -476,3 +476,135 @@ The first word in an allocated struct, array, or slice; in a global
 variable; or in a local variable (because on 32-bit architectures, the
 subject of 64-bit atomic operations will escape to the heap) can be
 relied upon to be 64-bit aligned.
+
+## idiomatic usage
+
+Idiomatic usage of `sync/atomic` drawn from the package's own runnable examples. Keywords: sync/atomic atomic usage example idiomatic how to use Value config Value read Mostly.
+
+```go
+package main
+
+import (
+	"sync/atomic"
+	"time"
+)
+
+func loadConfig() map[string]string {
+	return make(map[string]string)
+}
+
+func requests() chan int {
+	return make(chan int)
+}
+
+func main() {
+	var config atomic.Value // holds current server configuration
+	// Create initial config value and store into config.
+	config.Store(loadConfig())
+	go func() {
+		// Reload config every 10 seconds
+		// and update config value with the new version.
+		for {
+			time.Sleep(10 * time.Second)
+			config.Store(loadConfig())
+		}
+	}()
+	// Create worker goroutines that handle incoming requests
+	// using the latest config value.
+	for i := 0; i < 10; i++ {
+		go func() {
+			for r := range requests() {
+				c := config.Load()
+				// Handle request r using config c.
+				_, _ = r, c
+			}
+		}()
+	}
+}
+```
+
+```go
+package main
+
+import (
+	"sync"
+	"sync/atomic"
+)
+
+func main() {
+	type Map map[string]string
+	var m atomic.Value
+	m.Store(make(Map))
+	var mu sync.Mutex // used only by writers
+	// read function can be used to read the data without further synchronization
+	read := func(key string) (val string) {
+		m1 := m.Load().(Map)
+		return m1[key]
+	}
+	// insert function can be used to update the data without further synchronization
+	insert := func(key, val string) {
+		mu.Lock() // synchronize with other potential writers
+		defer mu.Unlock()
+		m1 := m.Load().(Map) // load current value of the data structure
+		m2 := make(Map)      // create a new value
+		for k, v := range m1 {
+			m2[k] = v // copy all data from the current object to the new one
+		}
+		m2[key] = val // do the update that we need
+		m.Store(m2)   // atomically replace the current object with the new one
+		// At this point all new readers start working with the new version.
+		// The old version will be garbage collected once the existing readers
+		// (if any) are done with it.
+	}
+	_, _ = read, insert
+}
+```
+
+## key idioms (curated)
+
+`sync/atomic` provides typed atomic values (`atomic.Int64`, `atomic.Uint64`, `atomic.Bool`,
+`atomic.Pointer[T]`, `atomic.Value`) whose methods are safe to call from many goroutines without a mutex.
+Use them for a hot counter, a stop/ready flag, or a swappable pointer where a full lock would be overkill.
+The methods are `Add`, `Load`, `Store`, `Swap`, and `CompareAndSwap` (CAS); `Add` returns the new value,
+`Swap` returns the old. Prefer the typed structs (Go 1.19+) over the older free functions, and never mix
+atomic and non-atomic access to the same field. Keywords: atomic sync/atomic lock-free counter flag
+Int64 Uint64 Bool Pointer Value Add Load Store Swap CompareAndSwap CAS increment decrement concurrent
+goroutine safe no mutex hot path memory order race.
+
+```go
+package main
+
+import (
+	"fmt"
+	"sync"
+	"sync/atomic"
+)
+
+type Counter struct{ n atomic.Int64 }
+
+func (c *Counter) Inc() int64 { return c.n.Add(1) } // returns the new value
+func (c *Counter) Get() int64 { return c.n.Load() }
+
+func main() {
+	var c Counter
+	var wg sync.WaitGroup
+	for i := 0; i < 1000; i++ {
+		wg.Add(1)
+		go func() { defer wg.Done(); c.Inc() }()
+	}
+	wg.Wait()
+	fmt.Println(c.Get()) // 1000, race-free without a Mutex
+
+	// A stop flag with atomic.Bool.
+	var stopped atomic.Bool
+	stopped.Store(true)
+	if stopped.Load() {
+		fmt.Println("stopped")
+	}
+
+	// Compare-and-swap: set to 5 only if currently 0.
+	var v atomic.Int64
+	swapped := v.CompareAndSwap(0, 5) // true; v is now 5
+	fmt.Println(swapped, v.Load())
+}
+```

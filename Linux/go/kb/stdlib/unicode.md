@@ -794,3 +794,61 @@ func (special SpecialCase) ToUpper(r rune) rune
 
 BUG: There is no mechanism for full case folding, that is, for
 characters that involve multiple runes in the input or output.
+
+## idiomatic usage
+
+Idiomatic usage of `unicode` drawn from the package's own runnable examples. Keywords: unicode unicode usage example idiomatic how to use Is Digit Is Letter Is Lower.
+
+```go
+package main
+
+import (
+	"fmt"
+	"unicode"
+)
+
+func main() {
+	fmt.Printf("%t\n", unicode.IsDigit('৩'))
+	fmt.Printf("%t\n", unicode.IsDigit('A'))
+}
+
+// Output:
+// true
+// false
+```
+
+```go
+package main
+
+import (
+	"fmt"
+	"unicode"
+)
+
+func main() {
+	fmt.Printf("%t\n", unicode.IsLetter('A'))
+	fmt.Printf("%t\n", unicode.IsLetter('7'))
+}
+
+// Output:
+// true
+// false
+```
+
+```go
+package main
+
+import (
+	"fmt"
+	"unicode"
+)
+
+func main() {
+	fmt.Printf("%t\n", unicode.IsLower('a'))
+	fmt.Printf("%t\n", unicode.IsLower('A'))
+}
+
+// Output:
+// true
+// false
+```

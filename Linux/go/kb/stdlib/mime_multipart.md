@@ -176,3 +176,37 @@ func (w *Writer) SetBoundary(boundary string) error
 
 func (w *Writer) WriteField(fieldname, value string) error
     WriteField calls Writer.CreateFormField and then writes the given value.
+
+## idiomatic usage
+
+Read the parts of a multipart message (e.g. multipart/form-data or MIME mail) by iterating a multipart.Reader with NextPart. Keywords: multipart.NewReader NextPart Part Header multipart/mixed multipart/form-data boundary parse multipart body io.EOF mime.ParseMediaType.
+
+```go
+import (
+	"fmt"
+	"io"
+	"log"
+	"mime/multipart"
+	"strings"
+)
+
+func main() {
+	body := strings.NewReader(
+		"--foo\r\nFoo: one\r\n\r\nA section\r\n" +
+			"--foo\r\nFoo: two\r\n\r\nAnd another\r\n--foo--\r\n")
+	mr := multipart.NewReader(body, "foo")
+	for {
+		p, err := mr.NextPart()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+		slurp, _ := io.ReadAll(p)
+		fmt.Printf("Part %q: %q\n", p.Header.Get("Foo"), slurp)
+	}
+	// Part "one": "A section"
+	// Part "two": "And another"
+}
+```

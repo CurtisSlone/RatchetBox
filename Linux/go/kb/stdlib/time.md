@@ -891,3 +891,112 @@ const (
 )
 func (d Weekday) String() string
     String returns the English name of the day ("Sunday", "Monday", ...).
+
+## idiomatic usage
+
+Idiomatic usage of `time` drawn from the package's own runnable examples. Keywords: time time usage example idiomatic how to use After Date Duration.
+
+```go
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+var c chan int
+
+func handle(int) {}
+
+func main() {
+	select {
+	case m := <-c:
+		handle(m)
+	case <-time.After(10 * time.Second):
+		fmt.Println("timed out")
+	}
+}
+```
+
+```go
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func main() {
+	t := time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC)
+	fmt.Printf("Go launched at %s\n", t.Local())
+}
+
+// Output:
+// Go launched at 2009-11-10 15:00:00 -0800 PST
+```
+
+```go
+package main
+
+import (
+	"fmt"
+	"time"
+)
+
+func expensiveCall() {}
+
+func main() {
+	t0 := time.Now()
+	expensiveCall()
+	t1 := time.Now()
+	fmt.Printf("The call took %v to run.\n", t1.Sub(t0))
+}
+```
+
+## key idioms (curated)
+
+`time.Duration` is a count of nanoseconds; build readable values by multiplying units
+(`5 * time.Second`, `100 * time.Millisecond`) and add them to a `time.Time` with `t.Add(d)`. For a
+one-shot delay use `time.After(d)` in a `select`; for a repeating tick use `time.NewTicker(d)` and ALWAYS
+`defer ticker.Stop()` (an un-stopped ticker leaks). Parse and format with the REFERENCE TIME
+`Mon Jan 2 15:04:05 MST 2006` (i.e. 01/02 03:04:05PM '06) as the layout - e.g. `t.Format("2006-01-02")`
+and `time.Parse("2006-01-02", s)`; prefer the predefined `time.RFC3339`. Compare with `Before`/`After`/
+`Equal` and measure elapsed time with `time.Since(start)`. Keywords: time Duration Time Second Millisecond
+Nanosecond Add Sub Since After NewTicker Ticker Stop NewTimer Timer Sleep Now Format Parse layout
+reference time 2006-01-02 15:04:05 RFC3339 Unix Before After Equal deadline elapsed timeout schedule.
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"time"
+)
+
+func main() {
+	// Duration arithmetic.
+	d := 2*time.Minute + 30*time.Second
+	deadline := time.Now().Add(d)
+	fmt.Println(time.Until(deadline) > 0)
+
+	// Format/parse with the reference time layout.
+	s := time.Now().Format("2006-01-02 15:04:05")
+	t, _ := time.Parse("2006-01-02 15:04:05", s)
+	fmt.Println(t.Year())
+
+	// A ticker that stops cleanly when the context is canceled.
+	ctx, cancel := context.WithTimeout(context.Background(), 250*time.Millisecond)
+	defer cancel()
+	ticker := time.NewTicker(100 * time.Millisecond)
+	defer ticker.Stop() // REQUIRED, or the ticker leaks
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case now := <-ticker.C:
+			fmt.Println("tick", now.UnixMilli())
+		}
+	}
+}
+```

@@ -2081,3 +2081,49 @@ to UnixConn and UnixListener are not implemented.
 
 BUG: On Windows, methods and functions related to UnixConn
 and UnixListener don't work for "unixgram" and "unixpacket".
+
+## idiomatic usage
+
+Listen for and accept TCP connections, dial out with a context/timeout, or parse and inspect IP addresses and CIDR networks. Keywords: net Listen Accept Conn Dialer DialContext ParseIP ParseCIDR IPv4 CIDRMask TCP UDP socket server client connection address subnet network listener.
+
+```go
+// TCP echo server.
+l, err := net.Listen("tcp", ":2000")
+if err != nil {
+	log.Fatal(err)
+}
+defer l.Close()
+for {
+	conn, err := l.Accept()
+	if err != nil {
+		log.Fatal(err)
+	}
+	go func(c net.Conn) {
+		io.Copy(c, c) // echo
+		c.Close()
+	}(conn)
+}
+```
+
+```go
+// Dial with a timeout via context.
+var d net.Dialer
+ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+defer cancel()
+conn, err := d.DialContext(ctx, "tcp", "localhost:12345")
+if err != nil {
+	log.Fatalf("Failed to dial: %v", err)
+}
+defer conn.Close()
+conn.Write([]byte("Hello, World!"))
+```
+
+```go
+// Parse an IP and a CIDR network.
+fmt.Println(net.ParseIP("192.0.2.1")) // 192.0.2.1
+ip, ipNet, err := net.ParseCIDR("192.0.2.1/24")
+if err != nil {
+	log.Fatal(err)
+}
+fmt.Println(ip, ipNet) // 192.0.2.1 192.0.2.0/24
+```

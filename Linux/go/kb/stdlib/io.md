@@ -508,3 +508,80 @@ type WriterTo interface {
     encountered during the write is also returned.
 
     The Copy function uses WriterTo if available.
+
+## idiomatic usage
+
+Stream bytes from a Reader to a Writer, read an entire stream into memory, or fan input out to multiple destinations. Keywords: io.Copy io.ReadAll io.WriteString io.MultiReader io.MultiWriter io.TeeReader io.LimitReader io.Pipe Reader Writer stream copy read all drain concatenate readers duplicate writers.
+
+```go
+// Stream from a Reader to a Writer.
+r := strings.NewReader("some io.Reader stream to be read\n")
+if _, err := io.Copy(os.Stdout, r); err != nil {
+	log.Fatal(err)
+}
+// Output:
+// some io.Reader stream to be read
+
+// Read an entire stream into a []byte.
+b, err := io.ReadAll(strings.NewReader("Go is a general-purpose language."))
+if err != nil {
+	log.Fatal(err)
+}
+fmt.Printf("%s", b)
+
+// Concatenate several readers into one.
+r1 := strings.NewReader("first reader ")
+r2 := strings.NewReader("second reader ")
+r3 := strings.NewReader("third reader\n")
+io.Copy(os.Stdout, io.MultiReader(r1, r2, r3))
+
+// Write to several writers at once.
+var buf1, buf2 strings.Builder
+w := io.MultiWriter(&buf1, &buf2)
+io.Copy(w, strings.NewReader("dup\n"))
+```
+
+## key idioms (curated)
+
+Go models streaming I/O with two small interfaces: `io.Reader` (`Read(p []byte) (n int, err error)`) and
+`io.Writer` (`Write`). Code against these, not concrete files, so the same function works on a file, a
+network socket, or a `bytes.Buffer`/`strings.Reader`. Copy a whole stream with `io.Copy(dst, src)`
+(returns when src hits `io.EOF`). To read line by line, wrap the reader in a `bufio.Scanner` and loop
+`for sc.Scan() { sc.Text() }`, then check `sc.Err()`; raise `sc.Buffer(...)` for lines longer than the
+default 64KB. Use `bufio.NewWriter` and `defer w.Flush()` to batch many small writes. Keywords: io bufio
+Reader Writer Read Write Copy EOF stream Scanner Scan Text Bytes Split Buffer line ReadString NewReader
+NewWriter Flush bytes.Buffer strings.Reader ReadAll TeeReader LimitReader pipe streaming file socket.
+
+```go
+package main
+
+import (
+	"bufio"
+	"fmt"
+	"io"
+	"strings"
+)
+
+// countLines reads any io.Reader line by line - works on a file, socket, or string.
+func countLines(r io.Reader) (int, error) {
+	sc := bufio.NewScanner(r)
+	sc.Buffer(make([]byte, 0, 64*1024), 1<<20) // allow up to 1MB lines
+	n := 0
+	for sc.Scan() {
+		_ = sc.Text() // the current line, without the newline
+		n++
+	}
+	return n, sc.Err() // always check Err after the loop
+}
+
+func main() {
+	src := strings.NewReader("one\ntwo\nthree\n")
+	n, _ := countLines(src)
+	fmt.Println(n) // 3
+
+	// io.Copy streams src -> dst until EOF, no manual loop.
+	var sb strings.Builder
+	_, _ = io.Copy(&sb, strings.NewReader("hello"))
+	fmt.Println(sb.String()) // hello
+}
+```

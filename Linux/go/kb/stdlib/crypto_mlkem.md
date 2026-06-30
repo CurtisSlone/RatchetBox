@@ -152,3 +152,39 @@ func (ek *EncapsulationKey768) Encapsulate() (sharedKey, ciphertext []byte)
 
     For testing, derandomized encapsulation is provided by the
     crypto/mlkem/mlkemtest package.
+
+## idiomatic usage
+
+Perform a post-quantum ML-KEM-768 key encapsulation: one party generates a decapsulation key and shares the encapsulation key; the other encapsulates a shared secret, and the first decapsulates it. Keywords: GenerateKey768 NewEncapsulationKey768 EncapsulationKey Encapsulate Decapsulate Bytes shared secret KEM key encapsulation mechanism post-quantum Kyber ML-KEM lattice ciphertext.
+
+```go
+import (
+	"crypto/mlkem"
+	"log"
+)
+
+func main() {
+	// Alice generates a key pair and sends the encapsulation key to Bob.
+	dk, err := mlkem.GenerateKey768()
+	if err != nil {
+		log.Fatal(err)
+	}
+	encapsulationKey := dk.EncapsulationKey().Bytes()
+
+	// Bob encapsulates a shared secret and returns the ciphertext.
+	ek, err := mlkem.NewEncapsulationKey768(encapsulationKey)
+	if err != nil {
+		log.Fatal(err)
+	}
+	bobSecret, ciphertext := ek.Encapsulate()
+
+	// Alice decapsulates the shared secret from the ciphertext.
+	aliceSecret, err := dk.Decapsulate(ciphertext)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// bobSecret and aliceSecret are now equal.
+	_, _ = bobSecret, aliceSecret
+}
+```

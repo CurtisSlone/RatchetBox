@@ -268,3 +268,27 @@ func Stop(c chan<- os.Signal)
     Stop causes package signal to stop relaying incoming signals to c. It
     undoes the effect of all prior calls to Notify using c. When Stop returns,
     it is guaranteed that c will receive no more signals.
+
+## idiomatic usage
+
+Catch OS signals (like Ctrl+C / SIGINT) by relaying them onto a buffered channel, or derive a context that is cancelled when a signal arrives for graceful shutdown. Keywords: signal.Notify signal.NotifyContext os.Interrupt SIGINT SIGTERM Ctrl+C buffered channel os.Signal graceful shutdown cancel context trap signal handle signal.
+
+```go
+// Relay signals onto a buffered channel and block until one arrives.
+c := make(chan os.Signal, 1)
+signal.Notify(c, os.Interrupt)
+s := <-c
+fmt.Println("Got signal:", s)
+
+// Derive a context cancelled on SIGINT for graceful shutdown.
+ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+defer stop()
+
+select {
+case <-someWork:
+	fmt.Println("ready")
+case <-ctx.Done():
+	fmt.Println(ctx.Err()) // "context canceled"
+	stop()
+}
+```

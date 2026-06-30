@@ -1181,3 +1181,29 @@ t.FieldByName("x") is not well defined if the struct type t contains
 multiple fields named x (embedded from different packages).
 FieldByName may return one of the fields named x or may report that there are none.
 See https://golang.org/issue/4876 for more details.
+
+## idiomatic usage
+
+Inspect types and values at runtime: get the reflect.Type of a value or interface, read struct field tags, and read struct fields by name or index. Keywords: reflect.TypeOf reflect.ValueOf Type Kind StructTag Tag.Get Tag.Lookup FieldByName FieldByIndex Implements struct tag reflection runtime type introspection field name json tag.
+
+```go
+// Get the reflect.Type of an interface via a typed nil pointer.
+writerType := reflect.TypeOf((*io.Writer)(nil)).Elem()
+fileType := reflect.TypeOf((*os.File)(nil))
+fmt.Println(fileType.Implements(writerType)) // true
+
+// Read a struct field's tag.
+type S struct {
+	F string `species:"gopher" color:"blue"`
+}
+field := reflect.TypeOf(S{}).Field(0)
+fmt.Println(field.Tag.Get("color"), field.Tag.Get("species")) // blue gopher
+if alias, ok := field.Tag.Lookup("alias"); ok {
+	fmt.Println(alias)
+}
+
+// Read a field value by name.
+type user struct{ firstName, lastName string }
+v := reflect.ValueOf(user{firstName: "John", lastName: "Doe"})
+fmt.Println("Name:", v.FieldByName("firstName")) // John
+```

@@ -155,3 +155,47 @@ func (z *Writer) Reset(w io.Writer)
 func (z *Writer) Write(p []byte) (int, error)
     Write writes a compressed form of p to the underlying io.Writer. The
     compressed bytes are not necessarily flushed until the Writer is closed.
+
+## idiomatic usage
+
+Compress with gzip.NewWriter (Write then Close to finish the gzip stream; optional Name/Comment/ModTime header fields) and decompress with gzip.NewReader, reading via io.Copy and closing both. Keywords: gzip NewWriter NewReader Write Close Reset Flush Name Comment ModTime Header Multistream compress decompress gunzip .gz stream io.Copy archive.
+
+```go
+import (
+	"bytes"
+	"compress/gzip"
+	"fmt"
+	"io"
+	"log"
+	"os"
+	"time"
+)
+
+func roundTrip() {
+	var buf bytes.Buffer
+	zw := gzip.NewWriter(&buf)
+
+	// Header fields are optional.
+	zw.Name = "a-new-hope.txt"
+	zw.ModTime = time.Now()
+
+	if _, err := zw.Write([]byte("A long time ago in a galaxy far, far away...")); err != nil {
+		log.Fatal(err)
+	}
+	if err := zw.Close(); err != nil { // Close finishes the gzip stream.
+		log.Fatal(err)
+	}
+
+	zr, err := gzip.NewReader(&buf)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Name: %s\n", zr.Name)
+	if _, err := io.Copy(os.Stdout, zr); err != nil {
+		log.Fatal(err)
+	}
+	if err := zr.Close(); err != nil {
+		log.Fatal(err)
+	}
+}
+```

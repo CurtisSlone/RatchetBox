@@ -94,3 +94,22 @@ func Split(path string) (dir, file string)
     into a directory and file name component. If there is no slash in path,
     Split returns an empty dir and file set to path. The returned values have
     the property that path = dir+file.
+
+## idiomatic usage
+
+Manipulate slash-separated paths (URLs, import paths): join, clean, split, and extract base/dir/extension. Keywords: path.Join path.Clean path.Split path.Base path.Dir path.Ext path.Match path.IsAbs slash path join paths clean path normalize file extension directory basename glob match.
+
+```go
+fmt.Println(path.Join("a", "b/c"))        // a/b/c
+fmt.Println(path.Clean("a/c/b/.."))       // a/c
+fmt.Println(path.Base("/a/b"))            // b
+fmt.Println(path.Dir("/a/b/c"))           // /a/b
+fmt.Println(path.Ext("/a/b/c/bar.css"))   // .css
+fmt.Println(path.IsAbs("/dev/null"))      // true
+
+dir, file := path.Split("static/myfile.css") // "static/", "myfile.css"
+fmt.Println(dir, file)
+
+matched, _ := path.Match("a*", "abc") // true
+fmt.Println(matched)
+```

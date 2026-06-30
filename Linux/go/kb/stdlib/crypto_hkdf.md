@@ -36,3 +36,39 @@ func Key[Hash hash.Hash](h func() Hash, secret, salt []byte, info string, keyLen
     Key derives a key from the given hash, secret, salt and context info,
     returning a []byte of length keyLength that can be used as cryptographic
     key. Salt and info can be nil.
+
+## idiomatic usage
+
+Derive one or more cryptographically secure keys from a master secret using HKDF (HMAC-based key derivation) with a hash, optional salt, and context info. Keywords: Key Extract Expand hkdf.Key sha256.New salt info derive key derivation HMAC KDF master secret rand.Read keyLen.
+
+```go
+import (
+	"crypto/hkdf"
+	"crypto/rand"
+	"crypto/sha256"
+	"fmt"
+)
+
+func Example_usage() {
+	hash := sha256.New
+	keyLen := hash().Size()
+
+	// Cryptographically secure master secret (do not hardcode in real code).
+	secret := []byte{0x00, 0x01, 0x02, 0x03}
+
+	// Non-secret salt, optional (can be nil). Recommended: hash-length random.
+	salt := make([]byte, hash().Size())
+	if _, err := rand.Read(salt); err != nil {
+		panic(err)
+	}
+
+	// Non-secret context info, optional (can be nil).
+	info := "hkdf example"
+
+	key, err := hkdf.Key(hash, secret, salt, info, keyLen)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("derived %d-byte key\n", len(key))
+}
+```

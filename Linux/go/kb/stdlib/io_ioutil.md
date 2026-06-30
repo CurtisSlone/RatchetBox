@@ -98,3 +98,50 @@ func WriteFile(filename string, data []byte, perm fs.FileMode) error
     WriteFile truncates it before writing, without changing permissions.
 
     Deprecated: As of Go 1.16, this function simply calls os.WriteFile.
+
+## idiomatic usage
+
+Deprecated convenience helpers (prefer the `os` and `io` packages in Go 1.16+): read a stream fully, read/write whole files, and create temp files. Keywords: ioutil ReadAll ReadFile WriteFile TempFile TempDir ReadDir deprecated read all whole file temporary directory os.ReadFile io.ReadAll os.CreateTemp.
+
+```go
+import (
+	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+	"strings"
+)
+
+func ExampleReadAll() {
+	r := strings.NewReader("Go is a general-purpose language.")
+	b, err := ioutil.ReadAll(r) // prefer io.ReadAll in Go 1.16+
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("%s", b)
+	// Output:
+	// Go is a general-purpose language.
+}
+
+func ExampleTempFile() {
+	tmpfile, err := ioutil.TempFile("", "example") // prefer os.CreateTemp
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer os.Remove(tmpfile.Name()) // clean up
+
+	if _, err := tmpfile.Write([]byte("temporary content")); err != nil {
+		log.Fatal(err)
+	}
+	if err := tmpfile.Close(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func ExampleWriteFile() {
+	// prefer os.WriteFile in Go 1.16+
+	if err := ioutil.WriteFile("hello", []byte("Hello, Gophers!"), 0644); err != nil {
+		log.Fatal(err)
+	}
+}
+```

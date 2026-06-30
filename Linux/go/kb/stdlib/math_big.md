@@ -1046,3 +1046,48 @@ func (i RoundingMode) String() string
 
 type Word uint
     A Word represents a single digit of a multi-precision unsigned integer.
+
+## idiomatic usage
+
+Do arbitrary-precision integer, rational, and floating-point arithmetic: parse from strings, run big-number loops (e.g. Fibonacci, sqrt with set precision), and test primality. Keywords: big.Int big.Rat big.Float NewInt SetString SetPrec SetInt64 Add Mul Quo Exp Cmp ProbablyPrime FloatString arbitrary precision bignum rational decimal primality.
+
+```go
+// Parse big numbers from strings.
+i := new(big.Int)
+i.SetString("644", 8) // octal -> 420
+fmt.Println(i)
+
+r := new(big.Rat)
+r.SetString("355/113")
+fmt.Println(r.FloatString(3)) // 3.142
+
+f := new(big.Float)
+f.SetString("3.14159")
+fmt.Println(f) // 3.14159
+
+// Big-integer loop plus a primality test.
+a, b := big.NewInt(0), big.NewInt(1)
+var limit big.Int
+limit.Exp(big.NewInt(10), big.NewInt(99), nil) // 10^99
+for a.Cmp(&limit) < 0 {
+	a.Add(a, b)
+	a, b = b, a
+}
+fmt.Println(a)                  // smallest 100-digit Fibonacci number
+fmt.Println(a.ProbablyPrime(20)) // Miller-Rabin primality test
+```
+
+```go
+// big.Float with explicit precision: sqrt(2) via Newton's method.
+const prec = 200
+two := new(big.Float).SetPrec(prec).SetInt64(2)
+half := new(big.Float).SetPrec(prec).SetFloat64(0.5)
+x := new(big.Float).SetPrec(prec).SetInt64(1)
+t := new(big.Float)
+for i := 0; i <= 8; i++ {
+	t.Quo(two, x)
+	t.Add(x, t)
+	x.Mul(half, t)
+}
+fmt.Printf("sqrt(2) = %.50f\n", x)
+```

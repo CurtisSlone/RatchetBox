@@ -156,3 +156,136 @@ func (s *Scanner) Scan() rune
 func (s *Scanner) TokenText() string
     TokenText returns the string corresponding to the most recently scanned
     token. Valid after calling Scanner.Scan and in calls of Scanner.Error.
+
+## idiomatic usage
+
+Idiomatic usage of `text/scanner` drawn from the package's own runnable examples. Keywords: text/scanner scanner usage example idiomatic how to use basic  is Ident Rune  mode.
+
+```go
+package main
+
+import (
+	"fmt"
+	"strings"
+	"text/scanner"
+)
+
+func main() {
+	const src = `
+// This is scanned code.
+if a > 10 {
+	someParsable = text
+}`
+
+	var s scanner.Scanner
+	s.Init(strings.NewReader(src))
+	s.Filename = "example"
+	for tok := s.Scan(); tok != scanner.EOF; tok = s.Scan() {
+		fmt.Printf("%s: %s\n", s.Position, s.TokenText())
+	}
+
+}
+
+// Output:
+// example:3:1: if
+// example:3:4: a
+// example:3:6: >
+// example:3:8: 10
+// example:3:11: {
+// example:4:2: someParsable
+// example:4:15: =
+// example:4:17: text
+// example:5:1: }
+```
+
+```go
+package main
+
+import (
+	"fmt"
+	"strings"
+	"text/scanner"
+	"unicode"
+)
+
+func main() {
+	const src = "%var1 var2%"
+
+	var s scanner.Scanner
+	s.Init(strings.NewReader(src))
+	s.Filename = "default"
+
+	for tok := s.Scan(); tok != scanner.EOF; tok = s.Scan() {
+		fmt.Printf("%s: %s\n", s.Position, s.TokenText())
+	}
+
+	fmt.Println()
+	s.Init(strings.NewReader(src))
+	s.Filename = "percent"
+
+	// treat leading '%' as part of an identifier
+	s.IsIdentRune = func(ch rune, i int) bool {
+		return ch == '%' && i == 0 || unicode.IsLetter(ch) || unicode.IsDigit(ch) && i > 0
+	}
+
+	for tok := s.Scan(); tok != scanner.EOF; tok = s.Scan() {
+		fmt.Printf("%s: %s\n", s.Position, s.TokenText())
+	}
+
+}
+
+// Output:
+// default:1:1: %
+// default:1:2: var1
+// default:1:7: var2
+// default:1:11: %
+// 
+// percent:1:1: %var1
+// percent:1:7: var2
+// percent:1:11: %
+```
+
+```go
+package main
+
+import (
+	"fmt"
+	"strings"
+	"text/scanner"
+)
+
+func main() {
+	const src = `
+    // Comment begins at column 5.
+
+This line should not be included in the output.
+
+/*
+This multiline comment
+should be extracted in
+its entirety.
+*/
+`
+
+	var s scanner.Scanner
+	s.Init(strings.NewReader(src))
+	s.Filename = "comments"
+	s.Mode ^= scanner.SkipComments // don't skip comments
+
+	for tok := s.Scan(); tok != scanner.EOF; tok = s.Scan() {
+		txt := s.TokenText()
+		if strings.HasPrefix(txt, "//") || strings.HasPrefix(txt, "/*") {
+			fmt.Printf("%s: %s\n", s.Position, txt)
+		}
+	}
+
+}
+
+// Output:
+// comments:2:5: // Comment begins at column 5.
+// comments:6:1: /*
+// This multiline comment
+// should be extracted in
+// its entirety.
+// */
+```

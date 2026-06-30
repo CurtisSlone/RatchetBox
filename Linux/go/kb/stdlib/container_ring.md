@@ -57,3 +57,28 @@ func (r *Ring) Unlink(n int) *Ring
     Unlink removes n % r.Len() elements from the ring r, starting at r.Next().
     If n % r.Len() == 0, r remains unchanged. The result is the removed subring.
     r must not be empty.
+
+## idiomatic usage
+
+Create a circular list with ring.New(n), set each element's Value while advancing with Next, and traverse the whole ring with Do (or Next/Prev/Move). Keywords: ring.New Len Next Prev Move Do Link Unlink Value circular list ring buffer traverse iterate rotate.
+
+```go
+import (
+	"container/ring"
+	"fmt"
+)
+
+r := ring.New(5)
+n := r.Len()
+
+// Fill the ring with values.
+for i := 0; i < n; i++ {
+	r.Value = i
+	r = r.Next()
+}
+
+// Visit every element.
+r.Do(func(p any) {
+	fmt.Println(p.(int)) // 0 1 2 3 4
+})
+```

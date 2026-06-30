@@ -921,3 +921,53 @@ type TxOptions struct {
 	ReadOnly  bool
 }
     TxOptions holds the transaction options to be used in DB.BeginTx.
+
+## idiomatic usage
+
+Query rows with QueryContext (iterate with Next/Scan), fetch a single row with QueryRowContext (checking sql.ErrNoRows), and modify data with ExecContext (checking RowsAffected). Keywords: database/sql DB QueryContext QueryRowContext ExecContext Scan Next Rows.Err ErrNoRows RowsAffected context query exec select insert update delete prepared statement rows iterate single row.
+
+```go
+// Query multiple rows.
+rows, err := db.QueryContext(ctx, "SELECT name FROM users WHERE age=?", age)
+if err != nil {
+	log.Fatal(err)
+}
+defer rows.Close()
+names := make([]string, 0)
+for rows.Next() {
+	var name string
+	if err := rows.Scan(&name); err != nil {
+		log.Fatal(err)
+	}
+	names = append(names, name)
+}
+if err := rows.Err(); err != nil {
+	log.Fatal(err)
+}
+
+// Fetch a single row.
+var username string
+var created time.Time
+err = db.QueryRowContext(ctx, "SELECT username, created_at FROM users WHERE id=?", id).Scan(&username, &created)
+switch {
+case err == sql.ErrNoRows:
+	log.Printf("no user with id %d\n", id)
+case err != nil:
+	log.Fatalf("query error: %v\n", err)
+default:
+	log.Printf("username is %q, created %s\n", username, created)
+}
+
+// Execute a write and check affected rows.
+result, err := db.ExecContext(ctx, "UPDATE balances SET balance = balance + 10 WHERE user_id = ?", id)
+if err != nil {
+	log.Fatal(err)
+}
+affected, err := result.RowsAffected()
+if err != nil {
+	log.Fatal(err)
+}
+if affected != 1 {
+	log.Fatalf("expected to affect 1 row, affected %d", affected)
+}
+```

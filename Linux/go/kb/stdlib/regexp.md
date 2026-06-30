@@ -389,3 +389,32 @@ func (re *Regexp) SubexpNames() []string
 func (re *Regexp) UnmarshalText(text []byte) error
     UnmarshalText implements encoding.TextUnmarshaler by calling Compile on the
     encoded value.
+
+## idiomatic usage
+
+Compile a regular expression once (usually with MustCompile at init), then match, find, extract submatches/named groups, replace, and split strings or bytes. Keywords: regexp.MustCompile regexp.Compile MatchString FindString FindStringSubmatch FindAllString ReplaceAllString ReplaceAllStringFunc Split SubexpNames SubexpIndex named capture group QuoteMeta regex pattern match replace extract submatch.
+
+```go
+// Compile once, usually at init time. Raw strings avoid backslash escaping.
+var validID = regexp.MustCompile(`^[a-z]+\[[0-9]+\]$`)
+fmt.Println(validID.MatchString("adam[23]")) // true
+fmt.Println(validID.MatchString("snakey"))   // false
+
+// Find a match and submatches.
+re := regexp.MustCompile(`a(x*)b(y|z)c`)
+fmt.Printf("%q\n", re.FindStringSubmatch("-axxxbyc-")) // ["axxxbyc" "xxx" "y"]
+
+// Named capture groups.
+named := regexp.MustCompile(`(?P<first>[a-zA-Z]+) (?P<last>[a-zA-Z]+)`)
+m := named.FindStringSubmatch("Alan Turing")
+fmt.Println(m[named.SubexpIndex("last")]) // Turing
+
+// Replace (with $1 backrefs) and replace via a function.
+r := regexp.MustCompile(`a(x*)b`)
+fmt.Println(r.ReplaceAllString("-ab-axxb-", "${1}W")) // -W-xxW-
+vowels := regexp.MustCompile(`[^aeiou]`)
+fmt.Println(vowels.ReplaceAllStringFunc("seafood fool", strings.ToUpper)) // SeaFooD FooL
+
+// Split.
+fmt.Println(regexp.MustCompile(`a`).Split("banana", -1)) // [b n n ]
+```

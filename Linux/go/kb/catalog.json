@@ -31,6 +31,13 @@
       "summary": "Third-party module API surface (go doc per added dependency)."
     },
     {
+      "name": "dsa",
+      "path": "kb/dsa",
+      "default": false,
+      "docs": 58,
+      "summary": "Data structures & algorithms in Go: linked lists, stacks, queues, deques, ring buffers, sets, hash tables, heaps/priority queues, trees (BST/AVL/red-black/trie/segment/Fenwick), union-find, graphs (BFS/DFS/topological-sort/Dijkstra/MST), sorting, searching, number theory, hashing/checksums, encoding (RLE/base-N/varint) - worked Go implementations + tests."
+    },
+    {
       "name": "guidelines",
       "path": "kb/guidelines",
       "default": false,
@@ -71,6 +78,13 @@
       "default": false,
       "docs": 176,
       "summary": "Go standard library API reference (go doc): io, net/http, sync, context, encoding, and 170+ packages."
+    },
+    {
+      "name": "docs",
+      "path": "kb/docs",
+      "default": false,
+      "docs": 7,
+      "summary": "How Ratchet works and how to drive/author this ratchet: the oracle, context binding, flows and node kinds, tools, knowledge bases, console/one-shot commands, and authoring."
     }
   ]
 }

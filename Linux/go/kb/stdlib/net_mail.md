@@ -88,3 +88,39 @@ type Message struct {
 func ReadMessage(r io.Reader) (msg *Message, err error)
     ReadMessage reads a message from r. The headers are parsed, and the body of
     the message will be available for reading from msg.Body.
+
+## idiomatic usage
+
+Parse email addresses and address lists into Name/Address, or read a full RFC 5322 message into headers plus body. Keywords: mail ParseAddress ParseAddressList ReadMessage ParseDate Address Name Header Get Body email parse from to subject sender recipient RFC 5322.
+
+```go
+// Parse a single address and an address list.
+e, err := mail.ParseAddress("Alice <alice@example.com>")
+if err != nil {
+	log.Fatal(err)
+}
+fmt.Println(e.Name, e.Address) // Alice alice@example.com
+
+emails, err := mail.ParseAddressList("Alice <alice@example.com>, Bob <bob@example.com>")
+if err != nil {
+	log.Fatal(err)
+}
+for _, v := range emails {
+	fmt.Println(v.Name, v.Address)
+}
+```
+
+```go
+// Read a full message: headers + body.
+r := strings.NewReader(msg)
+m, err := mail.ReadMessage(r)
+if err != nil {
+	log.Fatal(err)
+}
+fmt.Println("Subject:", m.Header.Get("Subject"))
+body, err := io.ReadAll(m.Body)
+if err != nil {
+	log.Fatal(err)
+}
+fmt.Printf("%s", body)
+```

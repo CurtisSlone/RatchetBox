@@ -121,3 +121,30 @@ func (z *Writer) Write(p []byte) (n int, err error)
     Write writes a compressed form of p to the underlying io.Writer. The
     compressed bytes are not necessarily flushed until the Writer is closed or
     explicitly flushed.
+
+## idiomatic usage
+
+Compress bytes by writing through a zlib.Writer (close to flush), and decompress by reading from a zlib.Reader. Keywords: NewWriter NewReader Write Close io.Copy compress decompress deflate inflate zlib stream bytes.Buffer.
+
+```go
+import (
+	"bytes"
+	"compress/zlib"
+	"io"
+	"os"
+)
+
+// Compress
+var b bytes.Buffer
+w := zlib.NewWriter(&b)
+w.Write([]byte("hello, world\n"))
+w.Close()
+
+// Decompress
+r, err := zlib.NewReader(bytes.NewReader(b.Bytes()))
+if err != nil {
+	panic(err)
+}
+io.Copy(os.Stdout, r)
+r.Close()
+```

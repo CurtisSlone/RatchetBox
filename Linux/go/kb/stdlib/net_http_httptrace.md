@@ -165,3 +165,24 @@ type WroteRequestInfo struct {
 	Err error
 }
     WroteRequestInfo contains information provided to the WroteRequest hook.
+
+## idiomatic usage
+
+Attach a ClientTrace to a request's context to observe connection, DNS, and TLS events during an outgoing HTTP request. Keywords: httptrace ClientTrace WithClientTrace GotConn DNSDone GotConnInfo DNSDoneInfo trace instrument hook RoundTrip request lifecycle latency.
+
+```go
+req, _ := http.NewRequest("GET", "http://example.com", nil)
+trace := &httptrace.ClientTrace{
+	GotConn: func(connInfo httptrace.GotConnInfo) {
+		fmt.Printf("Got Conn: %+v\n", connInfo)
+	},
+	DNSDone: func(dnsInfo httptrace.DNSDoneInfo) {
+		fmt.Printf("DNS Info: %+v\n", dnsInfo)
+	},
+}
+req = req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
+_, err := http.DefaultTransport.RoundTrip(req)
+if err != nil {
+	log.Fatal(err)
+}
+```

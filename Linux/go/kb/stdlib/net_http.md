@@ -3009,3 +3009,114 @@ func (t *Transport) RoundTrip(req *Request) (*Response, error)
 
     Like the RoundTripper interface, the error types returned by RoundTrip are
     unspecified.
+
+## idiomatic usage
+
+Make a GET request and read the body, register handlers and start a server, or route paths with a ServeMux. Keywords: http Get ListenAndServe HandleFunc Handle ServeMux NewServeMux ResponseWriter Request client server web handler route mux ReadAll body StatusCode.
+
+```go
+// Fetch a URL and read its body.
+res, err := http.Get("http://www.google.com/robots.txt")
+if err != nil {
+	log.Fatal(err)
+}
+body, err := io.ReadAll(res.Body)
+res.Body.Close()
+if res.StatusCode > 299 {
+	log.Fatalf("Response failed with status code: %d and\nbody: %s\n", res.StatusCode, body)
+}
+if err != nil {
+	log.Fatal(err)
+}
+fmt.Printf("%s", body)
+```
+
+```go
+// Minimal web server.
+helloHandler := func(w http.ResponseWriter, req *http.Request) {
+	io.WriteString(w, "Hello, world!\n")
+}
+http.HandleFunc("/hello", helloHandler)
+log.Fatal(http.ListenAndServe(":8080", nil))
+```
+
+```go
+// Routing with a ServeMux.
+mux := http.NewServeMux()
+mux.Handle("/api/", apiHandler{})
+mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
+	if req.URL.Path != "/" {
+		http.NotFound(w, req)
+		return
+	}
+	fmt.Fprintf(w, "Welcome to the home page!")
+})
+```
+
+## key idioms (curated)
+
+A correct HTTP server is more than `http.ListenAndServe`: build an `http.Server` with explicit
+`ReadTimeout`/`WriteTimeout`/`IdleTimeout` (an un-timed server is a slowloris and resource leak), route
+with a `*http.ServeMux`, and shut down gracefully on SIGINT/SIGTERM by calling `srv.Shutdown(ctx)` (which
+drains in-flight requests) instead of killing the process. A handler is `func(http.ResponseWriter,
+*http.Request)`; write JSON by setting the Content-Type header then `json.NewEncoder(w).Encode(v)`; report
+errors with `http.Error`. Middleware is a `func(http.Handler) http.Handler` that wraps the next handler.
+Keywords: net/http http server ListenAndServe Server ServeMux handler HandlerFunc ResponseWriter Request
+ReadTimeout WriteTimeout IdleTimeout graceful shutdown Shutdown signal SIGINT SIGTERM context middleware
+route mux REST JSON endpoint http.Error status code listen.
+
+```go
+package main
+
+import (
+	"context"
+	"encoding/json"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+)
+
+func itemsHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]any{"items": []string{"a", "b"}})
+}
+
+// logging is middleware: wraps the next handler.
+func logging(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("%s %s", r.Method, r.URL.Path)
+		next.ServeHTTP(w, r)
+	})
+}
+
+func main() {
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /items", itemsHandler)
+
+	srv := &http.Server{
+		Addr:         ":8080",
+		Handler:      logging(mux),
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  60 * time.Second,
+	}
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatal(err)
+		}
+	}()
+
+	// Block until a termination signal, then drain in-flight requests.
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)
+	<-stop
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	_ = srv.Shutdown(ctx) // graceful: waits for active requests, then returns
+}
+```
