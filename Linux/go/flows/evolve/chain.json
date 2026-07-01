@@ -4,6 +4,6 @@
   "version": "2.0.0",
   "summary": "Apply one spec layer as a transactional multi-file edit: regenerate every added/changed unit together, verify the whole module once (go vet + go test -race), roll back on failure.",
   "entry": "evolve.sync",
-  "budgets": { "max_steps": 14, "max_total_tokens": 60000, "max_wallclock_seconds": 1800 },
-  "nodes": ["evolve.sync", "evolve.ctx", "evolve.api", "evolve.generate", "evolve.apply", "evolve.fix", "evolve.reapply", "evolve.done", "evolve.fail"]
+  "budgets": { "max_steps": 16, "max_total_tokens": 60000, "max_wallclock_seconds": 1800 },
+  "nodes": ["evolve.sync", "evolve.changeset", "evolve.prune", "evolve.ctx", "evolve.api", "evolve.generate", "evolve.apply", "evolve.fix", "evolve.reapply", "evolve.signal", "evolve.done", "evolve.fail"]
 }

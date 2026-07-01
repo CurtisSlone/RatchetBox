@@ -93,9 +93,9 @@
     },
     {
       "id": "evolve",
-      "summary": "Apply one spec layer as a transactional multi-file edit: regenerate every added/changed unit together, verify the whole module once (go vet + go test -race), roll back on failure.",
+      "summary": "Apply one spec layer as a transactional multi-file edit (grow, change, or shrink): show the changeset, prune dropped units, regenerate every added/changed unit together, verify the whole module once (vet + test -race) with rollback, and on repair-exhaustion write an escalation signal.",
       "entry": "evolve.sync",
-      "nodes": 9
+      "nodes": 12
     }
   ]
 }

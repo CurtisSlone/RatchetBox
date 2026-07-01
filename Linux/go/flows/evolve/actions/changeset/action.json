@@ -1,0 +1,13 @@
+{
+  "$comment": "Observability: the human-readable release notes for this layer (added/changed/removed + unified spec diffs) land in the run record. Never gates - on_failure still proceeds.",
+  "id": "evolve.changeset",
+  "kind": "action",
+  "tool": "spec_changeset",
+  "inputs": [
+    { "from": "$workspace", "path": ".", "as": "proj" },
+    { "from": "$input", "path": ".", "as": "layers" }
+  ],
+  "body": { "proj": "{{ proj }}", "layers": "{{ layers }}" },
+  "on_success": "evolve.prune",
+  "on_failure": "evolve.prune"
+}

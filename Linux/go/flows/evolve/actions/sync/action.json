@@ -4,10 +4,21 @@
   "kind": "action",
   "tool": "sync_layer",
   "inputs": [
-    { "from": "$workspace", "path": ".", "as": "proj" },
-    { "from": "$input", "path": ".", "as": "layers" }
+    {
+      "from": "$workspace",
+      "path": ".",
+      "as": "proj"
+    },
+    {
+      "from": "$input",
+      "path": ".",
+      "as": "layers"
+    }
   ],
-  "body": { "proj": "{{ proj }}", "layers": "{{ layers }}" },
-  "on_success": "evolve.ctx",
+  "body": {
+    "proj": "{{ proj }}",
+    "layers": "{{ layers }}"
+  },
+  "on_success": "evolve.changeset",
   "on_failure": "evolve.fail"
 }

@@ -1,0 +1,16 @@
+{
+  "$comment": "Escalation: the repair is exhausted and the module was rolled back. Package the stuck change (verify errors + last attempt + the units' specs & current files) into workspaces/<proj>/signal/ for a human or a stronger model, then end in failure. This is the residual-4 hand-off, not a silent dead-end.",
+  "id": "evolve.signal",
+  "kind": "action",
+  "tool": "write_signal",
+  "inputs": [
+    { "from": "$workspace", "path": ".", "as": "proj" },
+    { "from": "$input", "path": ".", "as": "layers" },
+    { "from": "evolve.reapply", "path": ".", "as": "errors", "max_chars": 3000 },
+    { "from": "evolve.fix", "path": ".", "as": "prev", "max_chars": 9000 },
+    { "from": "evolve.ctx", "path": ".", "as": "units", "max_chars": 12000 }
+  ],
+  "body": { "proj": "{{ proj }}", "layers": "{{ layers }}", "report": "## Whole-module verify errors (rolled back)\n{{ errors }}\n\n## Last rolled-back attempt\n{{ prev }}\n\n## The changed units for this layer (new spec + current file each)\n{{ units }}" },
+  "on_success": "evolve.fail",
+  "on_failure": "evolve.fail"
+}

@@ -1,0 +1,13 @@
+{
+  "$comment": "Shrink as well as grow: delete the .go files for units DROPPED in this layer, so the changed units regenerate without them and the whole-module verify proves nothing dangles. Never gates (exits 0 whether or not anything was removed); rollback of deletions is covered by the per-run workspace snapshot.",
+  "id": "evolve.prune",
+  "kind": "action",
+  "tool": "remove_units",
+  "inputs": [
+    { "from": "$workspace", "path": ".", "as": "proj" },
+    { "from": "$input", "path": ".", "as": "layers" }
+  ],
+  "body": { "proj": "{{ proj }}", "layers": "{{ layers }}" },
+  "on_success": "evolve.ctx",
+  "on_failure": "evolve.ctx"
+}

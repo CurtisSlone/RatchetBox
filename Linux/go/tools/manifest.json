@@ -911,6 +911,63 @@
         ]
       },
       "timeout": 30
+    },
+    {
+      "name": "remove_units",
+      "description": "evolve prune: delete the .go files for units dropped between spec/<from> and spec/<to>. Rollback covered by the per-run workspace snapshot. Never fails the pass. Args: proj, layers ('<from> <to>').",
+      "command": [
+        "bash",
+        "tools/remove_units.sh",
+        "{proj}",
+        "{layers}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proj": {
+            "type": "string"
+          },
+          "layers": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "proj",
+          "layers"
+        ]
+      },
+      "timeout": 30
+    },
+    {
+      "name": "write_signal",
+      "description": "evolve escalation: when a layer still fails after repair, write an actionable hand-off (specs + current files + errors + last attempt) to workspaces/<proj>/signal/. Report on stdin. Args: proj, layers.",
+      "command": [
+        "bash",
+        "tools/write_signal.sh",
+        "{proj}",
+        "{layers}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "proj": {
+            "type": "string"
+          },
+          "layers": {
+            "type": "string"
+          },
+          "report": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "proj",
+          "layers",
+          "report"
+        ]
+      },
+      "stdin": "report",
+      "timeout": 30
     }
   ]
 }

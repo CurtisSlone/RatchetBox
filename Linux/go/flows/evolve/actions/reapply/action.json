@@ -3,10 +3,21 @@
   "kind": "action",
   "tool": "stage_files",
   "inputs": [
-    { "from": "$workspace", "path": ".", "as": "proj" },
-    { "from": "evolve.fix", "path": ".", "as": "code" }
+    {
+      "from": "$workspace",
+      "path": ".",
+      "as": "proj"
+    },
+    {
+      "from": "evolve.fix",
+      "path": ".",
+      "as": "code"
+    }
   ],
-  "body": { "proj": "{{ proj }}", "code": "{{ code }}" },
+  "body": {
+    "proj": "{{ proj }}",
+    "code": "{{ code }}"
+  },
   "on_success": "evolve.done",
-  "on_failure": "evolve.fail"
+  "on_failure": "evolve.signal"
 }

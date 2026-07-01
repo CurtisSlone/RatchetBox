@@ -13,14 +13,15 @@
 # (data<interface<component<behavior<gui<test) then name - so a changed unit always generates AFTER any
 # (added or pre-existing) unit it depends on, and the entry behavior maps to main.go last.
 set -u
-proj="${1:?usage: spec_diff <proj> \"<from> <to>\"}"
-layers="${2:?usage: spec_diff <proj> \"<from> <to>\"}"
+proj="${1:?usage: spec_diff <proj> \"<from> <to>\" [regen|removed]}"
+layers="${2:?usage: spec_diff <proj> \"<from> <to>\" [regen|removed]}"
+mode="${3:-regen}"    # regen (default) = added+changed worklist; removed = target paths of dropped units
 root="workspaces/$proj"; [ -d "$root" ] || root="$proj"
 [ -d "$root" ] || { echo "no such workspace: $proj" >&2; exit 1; }
 
 python3 -c '
 import sys, os, re
-root, layers = sys.argv[1], sys.argv[2].split()
+root, layers, mode = sys.argv[1], sys.argv[2].split(), sys.argv[3]
 if len(layers) != 2:
     sys.stderr.write("spec_diff: layers must be \"<from> <to>\" (e.g. \"L0 L1\")\n"); sys.exit(1)
 frm, to = layers
@@ -107,7 +108,15 @@ seen = [False]
 for spec in order:                      # assign paths over the FULL ordered set (entry = first behavior)
     u = tou[spec]; u["target"] = target(u, seen)
 
-for spec in order:                      # emit ONLY the changed units, in dependency order
-    if spec in changed:
-        print(tou[spec]["target"], spec)
-' "$root" "$layers"
+if mode == "removed":
+    # units present in <from> but absent in <to> -> their target .go files must be deleted. Map each
+    # standalone (a removed entry unit would have been main.go; usually a removed unit is a component).
+    rseen = [False]
+    for spec in sorted(frou, key=lambda s: (RANK.get(frou[s]["role"], 2), frou[s]["slug"])):
+        if spec not in tou:
+            print(target(frou[spec], rseen), spec)
+else:
+    for spec in order:                  # emit ONLY the changed/added units, in dependency order
+        if spec in changed:
+            print(tou[spec]["target"], spec)
+' "$root" "$layers" "$mode"

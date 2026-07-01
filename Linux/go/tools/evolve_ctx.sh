@@ -36,4 +36,13 @@ echo "$work" | while read -r path spec; do
   fi
   echo
 done
+
+# Units DROPPED in this layer (their files are deleted by the prune step). Tell the model so it stops
+# referencing them - a lingering reference would fail the whole-module verify.
+removed="$(bash tools/spec_diff.sh "$proj" "$layers" removed 2>/dev/null)"
+if [ -n "$removed" ]; then
+  echo "########## REMOVED in this layer (do NOT reference these; their files are deleted) ##########"
+  echo "$removed" | awk '{print "  - " $1 "   (was spec " $2 ")"}'
+  echo
+fi
 exit 0
